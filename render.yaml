@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: citexa-backend
+    env: python
+    buildCommand: "cd backend && pip install -r requirements.txt"
+    startCommand: "cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: DATABASE_URL
+        value: "postgresql://postgres:%40Ajay5241%23%23@db.msgslpbvkrykzuzvyusp.supabase.co:5432/postgres"
+      - key: LLM_API_KEY
+        value: "your_api_key_here" # User can update this in Render dashboard
+      - key: PYTHON_VERSION
+        value: "3.10.0"
