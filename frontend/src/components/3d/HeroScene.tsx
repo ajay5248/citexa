@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Canvas, useFrame } from "@react-three/fiber";
 import { Sparkles, Stars, Float, PerspectiveCamera, Environment, MeshTransmissionMaterial } from "@react-three/drei";
 import * as THREE from "three";
 
@@ -79,16 +79,14 @@ function RotatingRings() {
 }
 
 function MouseParallax() {
-  const { camera } = useThree();
-
   useFrame((state) => {
     // Smoothly move the camera based on mouse position
     const targetX = (state.pointer.x * 2);
     const targetY = (state.pointer.y * 2);
 
-    camera.position.x += (targetX - camera.position.x) * 0.05;
-    camera.position.y += (targetY - camera.position.y) * 0.05;
-    camera.lookAt(0, 0, 0);
+    state.camera.position.x += (targetX - state.camera.position.x) * 0.05;
+    state.camera.position.y += (targetY - state.camera.position.y) * 0.05;
+    state.camera.lookAt(0, 0, 0);
   });
 
   return null;

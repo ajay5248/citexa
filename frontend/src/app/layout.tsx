@@ -48,21 +48,97 @@ export const metadata: Metadata = {
 
 const jsonLd = {
   "@context": "https://schema.org",
-  "@type": "Organization",
-  "name": "Citexa",
-  "url": "https://citexa.online",
-  "logo": "https://citexa.online/logo.png",
-  "founder": {
-    "@type": "Person",
-    "name": "Ajay Adhikari",
-    "jobTitle": "Founder & CEO"
-  },
-  "sameAs": [
-    "https://twitter.com/citexa",
-    "https://linkedin.com/company/citexa"
-  ],
-  "description": "Citexa helps businesses improve visibility across AI search engines through Answer Engine Optimization."
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://citexa.online/#organization",
+      "name": "Citexa",
+      "url": "https://citexa.online",
+      "logo": {
+        "@type": "ImageObject",
+        "@id": "https://citexa.online/#logo",
+        "url": "https://citexa.online/logo.png",
+        "contentUrl": "https://citexa.online/logo.png",
+        "caption": "Citexa Logo"
+      },
+      "image": {
+        "@id": "https://citexa.online/#logo"
+      },
+      "founder": {
+        "@type": "Person",
+        "@id": "https://citexa.online/#founder",
+        "name": "Ajay Adhikari",
+        "jobTitle": "Founder & CEO",
+        "url": "https://citexa.online/about",
+        "email": "ajay@citexa.com",
+        "alumniOf": {
+          "@type": "EducationalOrganization",
+          "name": "B.Tech in Computer Science and Engineering (Artificial Intelligence and Machine Learning)"
+        },
+        "sameAs": [
+          "https://github.com/ajayadhikari",
+          "https://linkedin.com/in/ajayadhikari"
+        ],
+        "knowsAbout": [
+          "Artificial Intelligence",
+          "Machine Learning",
+          "Answer Engine Optimization",
+          "Search Engine Optimization",
+          "AEO",
+          "AI Search Optimization",
+          "Generative AI",
+          "Web Development"
+        ]
+      },
+      "foundingDate": "2026",
+      "legalName": "Citexa Technologies",
+      "email": "support@citexa.online",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "support@citexa.online",
+        "contactType": "customer support"
+      },
+      "sameAs": [
+        "https://twitter.com/citexa",
+        "https://linkedin.com/company/citexa"
+      ],
+      "description": "Citexa helps businesses improve visibility across AI search engines through Answer Engine Optimization.",
+      "knowsAbout": [
+        "Answer Engine Optimization",
+        "AEO",
+        "AI Search Visibility",
+        "Search Engine Optimization",
+        "SEO",
+        "Artificial Intelligence",
+        "Large Language Models"
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://citexa.online/#website",
+      "url": "https://citexa.online",
+      "name": "Citexa",
+      "description": "AI Search Visibility Platform",
+      "publisher": {
+        "@id": "https://citexa.online/#organization"
+      }
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://citexa.online/#webpage",
+      "url": "https://citexa.online",
+      "name": "Citexa | AI Search Visibility Platform",
+      "isPartOf": {
+        "@id": "https://citexa.online/#website"
+      },
+      "about": {
+        "@id": "https://citexa.online/#organization"
+      },
+      "description": "Citexa helps businesses improve visibility across ChatGPT, Gemini, Claude, Perplexity, Copilot and Google AI Overviews through AI Search Optimization and Answer Engine Optimization."
+    }
+  ]
 };
+
 
 export default function RootLayout({
   children,

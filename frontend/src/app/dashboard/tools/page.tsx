@@ -34,7 +34,17 @@ export default function ToolsPage() {
   const [businessName, setBusinessName] = useState("");
   const [businessDesc, setBusinessDesc] = useState("");
 
-  const [result, setResult] = useState<any>(null);
+  interface FAQ {
+    question: string;
+    answer: string;
+  }
+
+  interface ToolsResult {
+    faqs?: FAQ[];
+    json_ld?: string;
+  }
+
+  const [result, setResult] = useState<ToolsResult | null>(null);
 
   const handleGenerateFAQ = async () => {
     setLoading(true);
@@ -194,7 +204,7 @@ export default function ToolsPage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    {result.faqs.map((faq: any, i: number) => (
+                    {result.faqs.map((faq: FAQ, i: number) => (
                       <motion.div 
                         initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.1 }}
                         key={i} 
@@ -210,7 +220,7 @@ export default function ToolsPage() {
                 <Card className="bg-card/40 backdrop-blur-md border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
                   <CardHeader>
                     <CardTitle className="text-white">JSON-LD Code</CardTitle>
-                    <CardDescription className="text-gray-400">Inject this into your website's &lt;head&gt;.</CardDescription>
+                    <CardDescription className="text-gray-400">Inject this into your {"website's"} &lt;head&gt;.</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <pre className="bg-black/60 p-4 rounded-lg overflow-x-auto text-xs text-blue-300 border border-white/10">
@@ -298,7 +308,7 @@ export default function ToolsPage() {
                       <div className="w-2 h-2 rounded-full bg-primary shadow-[0_0_5px_rgba(var(--primary),0.8)] animate-pulse" />
                       Generated JSON-LD
                     </CardTitle>
-                    <CardDescription className="text-gray-400">Inject this into your website's &lt;head&gt;.</CardDescription>
+                    <CardDescription className="text-gray-400">Inject this into your {"website's"} &lt;head&gt;.</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <pre className="bg-black/60 p-4 rounded-lg overflow-x-auto text-sm text-blue-300 border border-white/10">
@@ -309,7 +319,7 @@ export default function ToolsPage() {
                         className="mt-6 w-full border-primary/50 text-primary hover:bg-primary/10 transition-colors shadow-[0_0_15px_rgba(var(--primary),0.1)]" 
                         variant="outline"
                         onClick={() => {
-                          navigator.clipboard.writeText(result.json_ld);
+                          navigator.clipboard.writeText(result.json_ld || "");
                           alert("Copied to clipboard!");
                         }}
                       >

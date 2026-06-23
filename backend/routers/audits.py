@@ -105,3 +105,17 @@ def get_audits(db: Session = Depends(database.get_db), current_user: schemas.Use
         
     audits = db.query(models.Audit).filter(models.Audit.website_id.in_(website_ids)).order_by(models.Audit.created_at.desc()).all()
     return audits
+
+@router.get("/{audit_id}", response_model=schemas.Audit)
+def get_audit(audit_id: int, db: Session = Depends(database.get_db), current_user: schemas.User = Depends(auth.get_current_user)):
+    db_audit = db.query(models.Audit).filter(models.Audit.id == audit_id).first()
+    if not db_audit:
+        raise HTTPException(status_code=404, detail="Audit not found")
+        
+    # Verify ownership of the website associated with this audit
+    website = db.query(models.Website).filter(models.Website.id == db_audit.website_id).first()
+    if not website or website.owner_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to view this audit")
+        
+    return db_audit
+

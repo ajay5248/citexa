@@ -44,7 +44,7 @@ export default function AboutPage() {
               transition={{ duration: 1, delay: 0.3 }}
               className="max-w-[800px] mx-auto text-gray-400 text-lg md:text-2xl font-light leading-relaxed mb-16"
             >
-              We help businesses become discoverable, cited, and recommended by the world's most powerful AI search engines.
+              We help businesses become discoverable, cited, and recommended by the {"world's"} most powerful AI search engines.
             </motion.p>
 
             <motion.div 

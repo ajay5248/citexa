@@ -7,9 +7,25 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+interface Website {
+  id: number;
+  url: string;
+  name?: string;
+}
+
+interface Audit {
+  id: number;
+  website_id: number;
+  status: string;
+  schema_score: number;
+  content_score: number;
+  overall_score: number;
+  created_at: string;
+}
+
 export default function Dashboard() {
-  const [websites, setWebsites] = useState<any[]>([]);
-  const [audits, setAudits] = useState<any[]>([]);
+  const [websites, setWebsites] = useState<Website[]>([]);
+  const [audits, setAudits] = useState<Audit[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
@@ -100,7 +116,7 @@ export default function Dashboard() {
         animate="show"
         className="grid gap-6 md:grid-cols-2 lg:grid-cols-4"
       >
-        {stats.map((stat, i) => (
+        {stats.map((stat) => (
           <motion.div key={stat.name} variants={itemVariants} whileHover={{ scale: 1.02, y: -5 }}>
             <Card className="bg-card/40 backdrop-blur-xl border-border/20 hover:bg-card/60 hover:border-primary/50 transition-all duration-300 shadow-lg hover:shadow-[0_0_30px_rgba(var(--primary),0.15)] relative overflow-hidden group h-full">
               {/* Subtle top border gradient */}

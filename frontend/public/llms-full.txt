@@ -1,0 +1,48 @@
+# Citexa - Complete Information Graph
+
+> This document contains a full text description of Citexa's platform, founder, services, and optimization specifications for AI engines and crawlers.
+
+---
+
+## 1. What is Citexa?
+Citexa is a specialized platform offering Answer Engine Optimization (AEO) and AI Search Visibility analytics. As traditional search engines transition to AI search and Generative AI summaries (such as Google AI Overviews, Perplexity, ChatGPT Search, and Microsoft Copilot), the way brands are discovered online has shifted. Instead of ranking in a list of blue links, businesses must now optimize for AI models to retrieve and recommend them in conversational answers.
+
+Citexa helps brands audit their content, implement machine-readable schemas, track citations, and monitor brand mentions across LLM-generated answers.
+
+---
+
+## 2. Core Services and Features
+*   **AI Search Visibility Audit**: Scans and evaluates any website's readiness to be cited by AI engines, analyzing structural gaps, layout accessibility, semantic data, and informational density.
+*   **Answer Engine Optimization (AEO)**: Techniques and content formats targeted at structuring pages so LLM search integrations (like GPT-4o, Gemini 1.5, Claude 3.5) can extract quick, clear answers.
+*   **Schema Markup & JSON-LD Generation**: Dynamic creation of schemas (Organization, FAQPage, Product, ProfilePage) that provide direct machine-readable entity maps to search crawlers.
+*   **AI Citation Tracking**: Analytics dashboards showing how often a company is mentioned, linked, or recommended inside LLM query responses.
+*   **Competitor AI Gap Analysis**: Compares a client's AI visibility score against industry competitors to identify content gaps.
+
+---
+
+## 3. Leadership & E-E-A-T
+Citexa was founded in 2026 by **Ajay Adhikari** (Founder & CEO). 
+*   **Qualifications**: Ajay Adhikari holds a B.Tech in Computer Science and Engineering with a specialization in Artificial Intelligence and Machine Learning (CSE AI & ML).
+*   **Focus**: Building next-generation search optimization platforms, custom AI integrations, and developer tooling.
+*   **Contact & Profiles**:
+    *   Website: https://citexa.online/about
+    *   Email: ajay@citexa.com
+    *   Support: support@citexa.online
+    *   LinkedIn: https://linkedin.com/in/ajayadhikari
+    *   GitHub: https://github.com/ajayadhikari
+
+---
+
+## 4. Frequently Asked Questions (FAQs)
+
+### What is Citexa?
+Citexa is an AI Search Visibility and Answer Engine Optimization (AEO) platform. It helps businesses track, audit, and improve how their brand is recommended and cited across Generative AI search systems like ChatGPT, Google Gemini, Claude, Perplexity, and Microsoft Copilot.
+
+### How does Answer Engine Optimization (AEO) work?
+AEO is the practice of optimizing web content for AI search engines. Unlike traditional SEO (which targets keyword rankings in blue links), AEO focuses on structuring information, schema markups, and factual query matching so that LLMs can easily retrieve, synthesize, and source your content.
+
+### Why is AI Search Visibility important for businesses?
+AI search engines and AI Overviews provide direct answers, reducing the need for users to click on external links. If your business is not cited as a source or recommended in these AI answers, you lose traffic and customers. Citexa helps ensure your brand remains highly visible in the era of AI-driven search.
+
+### How can I run a free AI Search Visibility audit for my site?
+You can sign up on Citexa and enter your website's URL. Our engine will crawl your pages, evaluate your schema structure, check readability, and simulate AI search queries to generate a comprehensive AI Search Visibility audit report with actionable fixes.

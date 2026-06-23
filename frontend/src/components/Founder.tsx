@@ -2,6 +2,7 @@
 
 import { useRef, useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Mail, ArrowRight } from "lucide-react";
 import { TiltCard } from "@/components/ui/TiltCard";
@@ -59,6 +60,7 @@ export function Founder() {
   const yGrid = useTransform(scrollYProgress, [0, 1], [-30, 30]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMounted(true);
     // Generate random background particles safely on client mount
     const generatedParticles = Array.from({ length: 20 }).map((_, i) => ({
@@ -253,13 +255,13 @@ export function Founder() {
               <div className="relative group/cta inline-block">
                 {/* Glow behind CTA */}
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-xl blur opacity-50 group-hover/cta:opacity-90 transition duration-500 group-hover/cta:duration-200" />
-                <a
+                <Link
                   href="/#contact"
                   className="relative flex items-center gap-2.5 px-8 py-4 bg-[#0a0a0d] hover:bg-transparent border border-white/10 hover:border-transparent rounded-xl text-white font-bold transition-all duration-500 leading-none group/btn hover:shadow-[0_0_30px_rgba(99,102,241,0.3)]"
                 >
                   <span className="text-base tracking-wide">Let's Build Something Amazing</span>
                   <ArrowRight className="size-5 text-indigo-400 group-hover/btn:translate-x-1.5 transition-transform duration-300" />
-                </a>
+                </Link>
               </div>
             </div>
 

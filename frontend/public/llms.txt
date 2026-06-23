@@ -1,0 +1,16 @@
+# Citexa
+
+> Citexa is a leading AI Search Visibility and Answer Engine Optimization (AEO) platform. It helps businesses, startups, and brands optimize their content so that LLMs (Large Language Models) and AI-powered search engines—like ChatGPT, Google Gemini, Claude, Perplexity, Microsoft Copilot, and Google AI Overviews—can easily scan, retrieve, summarize, and cite their products.
+
+## Core Navigation
+- [Home Page](https://citexa.online): Overview of the AI Search Visibility Platform and our core Answer Engine Optimization services.
+- [Services](https://citexa.online/services): Details on our capabilities including AI audits, structured schema optimization, and citation tracking.
+- [Pricing Plans](https://citexa.online/pricing): Professional packages and pricing tiers for organizations of all sizes.
+- [About Us](https://citexa.online/about): Our mission, vision, and team details. Founded by Ajay Adhikari.
+- [AI Search Audit](https://citexa.online/audit): Run a free AI search readiness scan on any website.
+- [Contact Support](https://citexa.online/contact): Reach out to our support team or book an AEO strategy call.
+
+## Trust & Information
+- [Privacy Policy](https://citexa.online/privacy): Information regarding user data processing and platform security.
+- [Terms of Service](https://citexa.online/terms): Usage agreement and terms for Citexa subscriptions.
+- [Founder & CEO Profile](https://citexa.online/about#founder): Credentials of founder Ajay Adhikari, specializing in AI, Machine Learning, and AEO.

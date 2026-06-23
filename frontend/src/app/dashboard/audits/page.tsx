@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Table, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Play, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -22,18 +22,29 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
 };
 
+interface Website {
+  id: number;
+  url: string;
+  name?: string;
+}
+
+interface Audit {
+  id: number;
+  status: string;
+  schema_score: number;
+  content_score: number;
+  overall_score: number;
+  created_at: string;
+}
+
 export default function Audits() {
   const router = useRouter();
-  const [audits, setAudits] = useState<any[]>([]);
-  const [websites, setWebsites] = useState<any[]>([]);
+  const [audits, setAudits] = useState<Audit[]>([]);
+  const [websites, setWebsites] = useState<Website[]>([]);
   const [loading, setLoading] = useState(true);
   const [running, setRunning] = useState(false);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const token = localStorage.getItem("token");
       
@@ -55,7 +66,12 @@ export default function Audits() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchData();
+  }, [fetchData]);
 
   const handleRunAudit = async () => {
     if (websites.length === 0) {

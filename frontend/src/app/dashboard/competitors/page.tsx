@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Table, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,20 +23,43 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
 };
 
+interface Website {
+  id: number;
+  url: string;
+  name?: string;
+}
+
+interface Competitor {
+  id: number;
+  competitor_url: string;
+  analysis_data: string | null;
+  created_at: string;
+}
+
 export default function Competitors() {
-  const [websites, setWebsites] = useState<any[]>([]);
+  const [websites, setWebsites] = useState<Website[]>([]);
   const [selectedWebsiteId, setSelectedWebsiteId] = useState<number | null>(null);
-  const [competitors, setCompetitors] = useState<any[]>([]);
+  const [competitors, setCompetitors] = useState<Competitor[]>([]);
   const [loading, setLoading] = useState(true);
   
   const [newCompUrl, setNewCompUrl] = useState("");
   const [adding, setAdding] = useState(false);
 
-  useEffect(() => {
-    fetchData();
+  const fetchCompetitors = useCallback(async (websiteId: number, token: string) => {
+    try {
+      const compRes = await fetch(`/api/competitors/${websiteId}`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      const compData = await compRes.json();
+      setCompetitors(compData);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
@@ -57,21 +80,12 @@ export default function Competitors() {
       console.error(e);
       setLoading(false);
     }
-  };
+  }, [fetchCompetitors]);
 
-  const fetchCompetitors = async (websiteId: number, token: string) => {
-    try {
-      const compRes = await fetch(`/api/competitors/${websiteId}`, {
-        headers: { "Authorization": `Bearer ${token}` }
-      });
-      const compData = await compRes.json();
-      setCompetitors(compData);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchData();
+  }, [fetchData]);
 
   const handleAddCompetitor = async () => {
     if (!selectedWebsiteId || !newCompUrl) return;
