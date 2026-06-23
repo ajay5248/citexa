@@ -5,7 +5,10 @@ import models, schemas, database, crud, auth
 import httpx
 import secrets
 
-models.Base.metadata.create_all(bind=database.engine)
+try:
+    models.Base.metadata.create_all(bind=database.engine)
+except Exception as db_err:
+    print(f"DATABASE INITIALIZATION WARNING: Failed to initialize database tables on boot. Error: {db_err}")
 
 app = FastAPI(title="Citexa API")
 
