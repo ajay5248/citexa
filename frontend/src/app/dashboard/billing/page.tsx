@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check } from "lucide-react";
@@ -19,6 +20,51 @@ const itemVariants = {
 };
 
 export default function Billing() {
+  const [plan, setPlan] = useState("pro");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedPlan = localStorage.getItem("selected_plan");
+      if (storedPlan) {
+        setPlan(storedPlan);
+      }
+    }
+  }, []);
+
+  const planInfo = {
+    starter: {
+      name: "Starter Plan",
+      price: "$49",
+      features: [
+        "Track 1 Website",
+        "10 AI Audits per month",
+        "Basic Schema Generation"
+      ]
+    },
+    pro: {
+      name: "Pro Plan",
+      price: "$99",
+      features: [
+        "Track up to 10 Websites",
+        "Unlimited AI Audits",
+        "Advanced Schema & FAQs",
+        "Competitor Tracking"
+      ]
+    },
+    enterprise: {
+      name: "Enterprise Plan",
+      price: "$299",
+      features: [
+        "Unlimited Websites",
+        "API Access",
+        "White-label Reports",
+        "Dedicated Account Manager"
+      ]
+    }
+  };
+
+  const currentPlan = planInfo[plan as keyof typeof planInfo] || planInfo.pro;
+
   return (
     <div className="space-y-8 max-w-4xl relative">
       <motion.div 
@@ -41,25 +87,19 @@ export default function Billing() {
             <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <CardHeader>
               <CardTitle className="text-white">Current Plan</CardTitle>
-              <CardDescription className="text-primary">You are currently on the Pro Plan</CardDescription>
+              <CardDescription className="text-primary">You are currently on the {currentPlan.name}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="text-4xl font-bold text-white drop-shadow-md flex items-end">
-                $99<span className="text-xl text-gray-400 font-normal ml-1 mb-1">/mo</span>
+                {currentPlan.price}<span className="text-xl text-gray-400 font-normal ml-1 mb-1">/mo</span>
               </div>
               <ul className="space-y-3">
-                <li className="flex items-center text-sm text-gray-300 group-hover:text-white transition-colors">
-                  <Check className="h-4 w-4 mr-2 text-green-400 drop-shadow-[0_0_5px_rgba(74,222,128,0.8)]" /> 
-                  Unlimited AI Audits
-                </li>
-                <li className="flex items-center text-sm text-gray-300 group-hover:text-white transition-colors">
-                  <Check className="h-4 w-4 mr-2 text-green-400 drop-shadow-[0_0_5px_rgba(74,222,128,0.8)]" /> 
-                  Track up to 10 Websites
-                </li>
-                <li className="flex items-center text-sm text-gray-300 group-hover:text-white transition-colors">
-                  <Check className="h-4 w-4 mr-2 text-green-400 drop-shadow-[0_0_5px_rgba(74,222,128,0.8)]" /> 
-                  Advanced Competitor Analysis
-                </li>
+                {currentPlan.features.map((feature, i) => (
+                  <li key={i} className="flex items-center text-sm text-gray-300 group-hover:text-white transition-colors">
+                    <Check className="h-4 w-4 mr-2 text-green-400 drop-shadow-[0_0_5px_rgba(74,222,128,0.8)]" /> 
+                    {feature}
+                  </li>
+                ))}
               </ul>
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Button variant="outline" className="w-full bg-black/20 border-white/10 hover:border-primary/50 hover:bg-primary/10 text-primary transition-all shadow-[0_0_15px_rgba(var(--primary),0.05)] hover:shadow-[0_0_20px_rgba(var(--primary),0.2)]">

@@ -1,33 +1,29 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 
 export function Navbar() {
-  const { scrollY } = useScroll();
-  const boxShadow = useTransform(
-    scrollY,
-    [0, 50],
-    ["0px 0px 0px rgba(0,0,0,0)", "0px 4px 20px rgba(0,0,0,0.1)"]
-  );
-  
-  const borderBottom = useTransform(
-    scrollY,
-    [0, 50],
-    ["1px solid rgba(var(--border), 0)", "1px solid rgba(var(--border), 0.4)"]
-  );
-  const backgroundColor = useTransform(
-    scrollY,
-    [0, 50],
-    ["rgba(var(--background), 0)", "rgba(var(--background), 0.8)"]
-  );
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <motion.header 
-      style={{ boxShadow, borderBottom, backgroundColor }}
-      className="fixed top-0 z-50 w-full backdrop-blur-md transition-all duration-300"
+    <header 
+      className={`fixed top-0 z-50 w-full backdrop-blur-md transition-all duration-300 ${
+        isScrolled 
+          ? "bg-background/80 border-b border-border/40 shadow-lg" 
+          : "bg-transparent border-b border-transparent shadow-none"
+      }`}
     >
       <div className="container flex h-16 max-w-screen-2xl items-center mx-auto px-4">
         <div className="mr-4 flex">
@@ -68,6 +64,6 @@ export function Navbar() {
           </nav>
         </div>
       </div>
-    </motion.header>
+    </header>
   );
 }

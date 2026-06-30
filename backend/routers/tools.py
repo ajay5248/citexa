@@ -69,7 +69,7 @@ def generate_faq(request: FAQRequest, db: Session = Depends(database.get_db), cu
     
     try:
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4o-mini",
             messages=[{"role": "user", "content": prompt}],
             response_format={ "type": "json_object" }
         )
@@ -126,7 +126,7 @@ def generate_schema(request: SchemaRequest, db: Session = Depends(database.get_d
     """
     try:
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4o-mini",
             messages=[{"role": "user", "content": prompt}],
             response_format={ "type": "json_object" }
         )

@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
+import os
 import models, schemas, database, crud, auth
 import httpx
 import secrets
@@ -13,15 +14,20 @@ except Exception as db_err:
 app = FastAPI(title="Citexa API")
 
 # Configure CORS
+allowed_origins = [
+    "http://localhost:3000",
+    "https://citexa.vercel.app",
+    "https://citexa.online",
+    "https://www.citexa.online",
+    "https://citexa-app.vercel.app"
+]
+env_origins = os.getenv("ALLOWED_ORIGINS")
+if env_origins:
+    allowed_origins = [origin.strip() for origin in env_origins.split(",") if origin.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "https://citexa.vercel.app",
-        "https://citexa.online",
-        "https://www.citexa.online",
-        "https://citexa-app.vercel.app"
-    ],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

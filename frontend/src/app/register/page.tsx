@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useGoogleLogin } from "@react-oauth/google";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Register() {
   const router = useRouter();
@@ -18,6 +18,17 @@ export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const planParam = new URLSearchParams(window.location.search).get("plan");
+      if (planParam) {
+        setSelectedPlan(planParam);
+        localStorage.setItem("selected_plan", planParam);
+      }
+    }
+  }, []);
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
 
@@ -110,7 +121,15 @@ export default function Register() {
         <div className="w-full max-w-md px-8 py-10 bg-card/50 backdrop-blur border border-border/50 rounded-2xl">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold mb-2">Create an Account</h1>
-            <p className="text-gray-400">Start optimizing for AI search today</p>
+            {selectedPlan ? (
+              <div className="mt-2">
+                <span className="text-primary font-bold text-xs bg-primary/10 border border-primary/20 rounded-full px-3 py-1">
+                  Selected Plan: {selectedPlan.charAt(0).toUpperCase() + selectedPlan.slice(1)}
+                </span>
+              </div>
+            ) : (
+              <p className="text-gray-400">Start optimizing for AI search today</p>
+            )}
           </div>
           {error && <div className="text-red-500 mb-4 text-center text-sm">{error}</div>}
           <form className="space-y-6" onSubmit={handleStandardRegister}>

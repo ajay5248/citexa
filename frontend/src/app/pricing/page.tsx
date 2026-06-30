@@ -5,6 +5,7 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 export default function PricingPage() {
   return (
@@ -74,7 +75,9 @@ export default function PricingPage() {
                 <li className="flex items-center text-gray-300"><Check className="h-5 w-5 mr-3 text-purple-400" /> 10 AI Audits per month</li>
                 <li className="flex items-center text-gray-300"><Check className="h-5 w-5 mr-3 text-purple-400" /> Basic Schema Generation</li>
               </ul>
-              <Button className="w-full h-12 text-lg font-bold bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-xl transition-all">Get Started</Button>
+              <Link href="/register?plan=starter" className="w-full">
+                <Button className="w-full h-12 text-lg font-bold bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-xl transition-all">Get Started</Button>
+              </Link>
             </div>
           </motion.div>
 
@@ -111,9 +114,11 @@ export default function PricingPage() {
                 <li className="flex items-center text-white"><Check className="h-5 w-5 mr-3 text-pink-400 drop-shadow-[0_0_5px_rgba(236,72,153,0.8)]" /> Advanced Schema & FAQs</li>
                 <li className="flex items-center text-white"><Check className="h-5 w-5 mr-3 text-pink-400 drop-shadow-[0_0_5px_rgba(236,72,153,0.8)]" /> Competitor Tracking</li>
               </ul>
-              <Button className="w-full h-14 text-lg font-bold bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white rounded-xl shadow-[0_0_20px_rgba(236,72,153,0.4)] hover:shadow-[0_0_30px_rgba(236,72,153,0.6)] border-none transition-all relative z-10">
-                Upgrade to Pro
-              </Button>
+              <Link href="/register?plan=pro" className="w-full relative z-10">
+                <Button className="w-full h-14 text-lg font-bold bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white rounded-xl shadow-[0_0_20px_rgba(236,72,153,0.4)] hover:shadow-[0_0_30px_rgba(236,72,153,0.6)] border-none transition-all">
+                  Upgrade to Pro
+                </Button>
+              </Link>
             </div>
           </motion.div>
 
@@ -140,7 +145,9 @@ export default function PricingPage() {
                 <li className="flex items-center text-gray-300"><Check className="h-5 w-5 mr-3 text-purple-400" /> White-label Reports</li>
                 <li className="flex items-center text-gray-300"><Check className="h-5 w-5 mr-3 text-purple-400" /> Dedicated Account Manager</li>
               </ul>
-              <Button className="w-full h-12 text-lg font-bold bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-xl transition-all">Contact Sales</Button>
+              <Link href="/register?plan=enterprise" className="w-full">
+                <Button className="w-full h-12 text-lg font-bold bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-xl transition-all">Contact Sales</Button>
+              </Link>
             </div>
           </motion.div>
 

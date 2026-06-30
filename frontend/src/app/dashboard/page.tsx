@@ -38,7 +38,7 @@ export default function Dashboard() {
           return;
         }
 
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
 
         const [websitesRes, auditsRes] = await Promise.all([
           fetch(`${apiUrl}/websites/`, { headers: { "Authorization": `Bearer ${token}` } }),

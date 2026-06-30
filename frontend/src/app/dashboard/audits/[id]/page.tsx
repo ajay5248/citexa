@@ -24,7 +24,7 @@ export default function AuditDetail() {
           return;
         }
 
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
 
         // Fetch specific audit
         const auditRes = await fetch(`${apiUrl}/audits/${params.id}`, {

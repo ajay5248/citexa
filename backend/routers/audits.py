@@ -19,11 +19,12 @@ import os
 # Use a dummy key if not provided so the app starts without crashing
 client = OpenAI(api_key=os.getenv("LLM_API_KEY") or "dummy_key_to_prevent_crash")
 
-def perform_real_audit(audit_id: int, db: Session, url: str):
-    db_audit = db.query(models.Audit).filter(models.Audit.id == audit_id).first()
-    if not db_audit: return
-    
+def perform_real_audit(audit_id: int, url: str):
+    db = database.SessionLocal()
     try:
+        db_audit = db.query(models.Audit).filter(models.Audit.id == audit_id).first()
+        if not db_audit: return
+        
         # Extract basic keywords from the URL to search Wikipedia
         keyword = url.replace("https://", "").replace("http://", "").replace("www.", "").split(".")[0]
         
@@ -58,7 +59,7 @@ def perform_real_audit(audit_id: int, db: Session, url: str):
             }
         else:
             response = client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model="gpt-4o-mini",
                 messages=[{"role": "user", "content": prompt}],
                 response_format={ "type": "json_object" }
             )
@@ -72,22 +73,31 @@ def perform_real_audit(audit_id: int, db: Session, url: str):
         db_audit.audit_data = json.dumps({"recommendations": response_json.get("recommendations", [])})
         db.commit()
     except Exception as e:
-        db_audit.status = "failed"
-        db_audit.audit_data = json.dumps({"error": str(e)})
-        db.commit()
+        db.rollback()
+        try:
+            db_audit = db.query(models.Audit).filter(models.Audit.id == audit_id).first()
+            if db_audit:
+                db_audit.status = "failed"
+                db_audit.audit_data = json.dumps({"error": str(e)})
+                db.commit()
+        except:
+            pass
+    finally:
+        db.close()
 
 @router.post("/", response_model=schemas.Audit)
-def create_audit(audit: schemas.AuditCreate, background_tasks: BackgroundTasks, db: Session = Depends(database.get_db)):
+def create_audit(audit: schemas.AuditCreate, background_tasks: BackgroundTasks, db: Session = Depends(database.get_db), current_user: schemas.User = Depends(auth.get_current_user)):
+    # Verify ownership of the website
+    website = db.query(models.Website).filter(models.Website.id == audit.website_id, models.Website.owner_id == current_user.id).first()
+    if not website:
+        raise HTTPException(status_code=404, detail="Website not found or not owned by current user")
+        
     db_audit = models.Audit(website_id=audit.website_id, status="pending")
     db.add(db_audit)
     db.commit()
     db.refresh(db_audit)
     
-    # We need the website URL to pass to the audit
-    website = db.query(models.Website).filter(models.Website.id == audit.website_id).first()
-    url = website.url if website else "unknown"
-    
-    background_tasks.add_task(perform_real_audit, db_audit.id, db, url)
+    background_tasks.add_task(perform_real_audit, db_audit.id, website.url)
     
     return db_audit
 

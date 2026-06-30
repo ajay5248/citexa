@@ -29,11 +29,12 @@ def get_competitors(website_id: int, db: Session = Depends(database.get_db), cur
     competitors = db.query(models.Competitor).filter(models.Competitor.website_id == website_id).all()
     return competitors
 
-def analyze_competitor_bg(competitor_id: int, db: Session, my_url: str, comp_url: str):
-    db_comp = db.query(models.Competitor).filter(models.Competitor.id == competitor_id).first()
-    if not db_comp: return
-    
+def analyze_competitor_bg(competitor_id: int, my_url: str, comp_url: str):
+    db = database.SessionLocal()
     try:
+        db_comp = db.query(models.Competitor).filter(models.Competitor.id == competitor_id).first()
+        if not db_comp: return
+        
         # Extract keywords
         my_keyword = my_url.replace("https://", "").replace("http://", "").replace("www.", "").split(".")[0]
         comp_keyword = comp_url.replace("https://", "").replace("http://", "").replace("www.", "").split(".")[0]
@@ -74,7 +75,7 @@ def analyze_competitor_bg(competitor_id: int, db: Session, my_url: str, comp_url
             }
         else:
             response = client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model="gpt-4o-mini",
                 messages=[{"role": "user", "content": prompt}],
                 response_format={ "type": "json_object" }
             )
@@ -84,8 +85,16 @@ def analyze_competitor_bg(competitor_id: int, db: Session, my_url: str, comp_url
         db_comp.analysis_data = json.dumps(response_json)
         db.commit()
     except Exception as e:
-        db_comp.analysis_data = json.dumps({"error": str(e)})
-        db.commit()
+        db.rollback()
+        try:
+            db_comp = db.query(models.Competitor).filter(models.Competitor.id == competitor_id).first()
+            if db_comp:
+                db_comp.analysis_data = json.dumps({"error": str(e)})
+                db.commit()
+        except:
+            pass
+    finally:
+        db.close()
 
 @router.post("/", response_model=CompetitorResponse)
 def add_competitor(comp: schemas.CompetitorCreate, background_tasks: BackgroundTasks, db: Session = Depends(database.get_db), current_user: schemas.User = Depends(auth.get_current_user)):
@@ -103,6 +112,6 @@ def add_competitor(comp: schemas.CompetitorCreate, background_tasks: BackgroundT
     db.commit()
     db.refresh(db_comp)
     
-    background_tasks.add_task(analyze_competitor_bg, db_comp.id, db, website.url, comp.competitor_url)
+    background_tasks.add_task(analyze_competitor_bg, db_comp.id, website.url, comp.competitor_url)
     
     return db_comp
