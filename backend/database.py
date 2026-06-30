@@ -9,6 +9,8 @@ load_dotenv()
 
 # 2. Retrieve the PostgreSQL Database URL
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
+if SQLALCHEMY_DATABASE_URL and SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
+    SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
 # 3. Handle Database Engine Creation with auto-fallback on connection failure
 engine = None
