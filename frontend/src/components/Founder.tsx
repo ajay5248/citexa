@@ -224,7 +224,7 @@ export function Founder() {
             {/* Social Buttons */}
             <div className="flex flex-wrap gap-4 pt-2">
               <a 
-                href="https://linkedin.com/in/ajayadhikari" 
+                href="https://www.linkedin.com/in/ajay-adhikari-419a3b320/" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/[0.02] hover:bg-blue-500/10 border border-white/5 hover:border-blue-500/40 text-gray-300 hover:text-white transition-all duration-300 group/social hover:-translate-y-0.5"
@@ -233,7 +233,7 @@ export function Founder() {
                 <span className="text-sm font-semibold tracking-wide">LinkedIn</span>
               </a>
               <a 
-                href="https://github.com/ajayadhikari" 
+                href="https://github.com/ajay5248" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/[0.02] hover:bg-purple-500/10 border border-white/5 hover:border-purple-500/40 text-gray-300 hover:text-white transition-all duration-300 group/social hover:-translate-y-0.5"

@@ -76,8 +76,8 @@ const jsonLd = {
           "name": "B.Tech in Computer Science and Engineering (Artificial Intelligence and Machine Learning)"
         },
         "sameAs": [
-          "https://github.com/ajayadhikari",
-          "https://linkedin.com/in/ajayadhikari"
+          "https://github.com/ajay5248",
+          "https://www.linkedin.com/in/ajay-adhikari-419a3b320/"
         ],
         "knowsAbout": [
           "Artificial Intelligence",
