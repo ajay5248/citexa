@@ -43,6 +43,38 @@ export default function Audits() {
   const [websites, setWebsites] = useState<Website[]>([]);
   const [loading, setLoading] = useState(true);
   const [running, setRunning] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const handleLocationChange = () => {
+        const query = new URLSearchParams(window.location.search).get("search") || "";
+        setSearchQuery(query);
+      };
+      
+      handleLocationChange();
+      
+      window.addEventListener("popstate", handleLocationChange);
+      
+      const originalPushState = window.history.pushState;
+      const originalReplaceState = window.history.replaceState;
+      
+      window.history.pushState = function(...args) {
+        originalPushState.apply(this, args);
+        handleLocationChange();
+      };
+      window.history.replaceState = function(...args) {
+        originalReplaceState.apply(this, args);
+        handleLocationChange();
+      };
+      
+      return () => {
+        window.removeEventListener("popstate", handleLocationChange);
+        window.history.pushState = originalPushState;
+        window.history.replaceState = originalReplaceState;
+      };
+    }
+  }, []);
 
   const fetchData = useCallback(async () => {
     try {
@@ -106,6 +138,18 @@ export default function Audits() {
     }
   };
 
+  const getWebsiteUrl = useCallback((websiteId: number) => {
+    const website = websites.find(w => w.id === websiteId);
+    return website ? website.url : `Website #${websiteId}`;
+  }, [websites]);
+
+  const filteredAudits = audits.filter(audit => {
+    const url = getWebsiteUrl(audit.website_id).toLowerCase();
+    const id = `aud-${audit.id}`.toLowerCase();
+    const query = searchQuery.toLowerCase();
+    return url.includes(query) || id.includes(query);
+  });
+
   if (loading) return (
     <div className="flex justify-center items-center h-64">
       <motion.div
@@ -137,68 +181,76 @@ export default function Audits() {
         </motion.div>
       </motion.div>
 
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-        className="rounded-xl border border-white/10 bg-card/40 backdrop-blur-md overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative"
-      >
-        {/* Subtle background gradient inside table container */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
-        
-        <Table>
-          <TableHeader>
-            <TableRow className="border-white/10 hover:bg-transparent bg-black/20">
-              <TableHead className="text-gray-300 font-medium">Audit ID</TableHead>
-              <TableHead className="text-gray-300 font-medium">Date</TableHead>
-              <TableHead className="text-gray-300 font-medium">Status</TableHead>
-              <TableHead className="text-gray-300 font-medium">Schema Score</TableHead>
-              <TableHead className="text-gray-300 font-medium">Content Score</TableHead>
-              <TableHead className="text-right text-gray-300 font-medium">Overall Score</TableHead>
-            </TableRow>
-          </TableHeader>
-          <motion.tbody
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="divide-y divide-white/5"
+      {audits.length > 0 ? (
+        filteredAudits.length > 0 ? (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="rounded-xl border border-white/10 bg-card/40 backdrop-blur-md overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative"
           >
-            {audits.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} className="text-center py-12 text-gray-500">
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
-                    No audits found. Run one to get started!
-                  </motion.div>
-                </TableCell>
-              </TableRow>
-            ) : audits.map((audit) => (
-              <motion.tr 
-                key={audit.id} 
-                className="border-white/5 hover:bg-white/5 transition-colors group cursor-pointer"
-                onClick={() => router.push(`/dashboard/audits/${audit.id}`)}
-                variants={itemVariants}
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
+            
+            <Table>
+              <TableHeader>
+                <TableRow className="border-white/10 hover:bg-transparent bg-black/20">
+                  <TableHead className="text-gray-300 font-medium">Audit ID</TableHead>
+                  <TableHead className="text-gray-300 font-medium">Website</TableHead>
+                  <TableHead className="text-gray-300 font-medium">Date</TableHead>
+                  <TableHead className="text-gray-300 font-medium">Status</TableHead>
+                  <TableHead className="text-gray-300 font-medium">Schema Score</TableHead>
+                  <TableHead className="text-gray-300 font-medium">Content Score</TableHead>
+                  <TableHead className="text-right text-gray-300 font-medium">Overall Score</TableHead>
+                </TableRow>
+              </TableHeader>
+              <motion.tbody
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                className="divide-y divide-white/5"
               >
-                <TableCell className="font-medium text-primary group-hover:drop-shadow-[0_0_8px_rgba(var(--primary),0.5)] transition-all">AUD-{audit.id}</TableCell>
-                <TableCell className="text-gray-400">{new Date(audit.created_at).toLocaleDateString()}</TableCell>
-                <TableCell>
-                  <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold backdrop-blur-sm ${
-                    audit.status === 'completed' ? 'bg-green-500/10 text-green-400 border border-green-500/20' 
-                    : audit.status === 'pending' ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20'
-                    : 'bg-red-500/10 text-red-400 border border-red-500/20'
-                  }`}>
-                    {audit.status.toUpperCase()}
-                  </span>
-                </TableCell>
-                <TableCell className="text-gray-300">{audit.schema_score}/100</TableCell>
-                <TableCell className="text-gray-300">{audit.content_score}/100</TableCell>
-                <TableCell className="text-right font-bold text-primary group-hover:scale-105 transition-transform origin-right">
-                  {audit.overall_score}/100
-                </TableCell>
-              </motion.tr>
-            ))}
-          </motion.tbody>
-        </Table>
-      </motion.div>
-    </div>
+                {filteredAudits.map((audit) => (
+                  <motion.tr 
+                    key={audit.id} 
+                    className="border-white/5 hover:bg-white/5 transition-colors group cursor-pointer"
+                    onClick={() => router.push(`/dashboard/audits/${audit.id}`)}
+                    variants={itemVariants}
+                  >
+                    <TableCell className="font-medium text-primary group-hover:drop-shadow-[0_0_8px_rgba(var(--primary),0.5)] transition-all">AUD-{audit.id}</TableCell>
+                    <TableCell className="text-white font-medium">{getWebsiteUrl(audit.website_id)}</TableCell>
+                    <TableCell className="text-gray-400">{new Date(audit.created_at).toLocaleDateString()}</TableCell>
+                    <TableCell>
+                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold backdrop-blur-sm ${
+                        audit.status === 'completed' ? 'bg-green-500/10 text-green-400 border border-green-500/20' 
+                        : audit.status === 'pending' ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20'
+                        : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                      }`}>
+                        {audit.status.toUpperCase()}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-gray-300">{audit.schema_score}/100</TableCell>
+                    <TableCell className="text-gray-300">{audit.content_score}/100</TableCell>
+                    <TableCell className="text-right font-bold text-primary group-hover:scale-105 transition-transform origin-right">
+                      {audit.overall_score}/100
+                    </TableCell>
+                  </motion.tr>
+                ))}
+              </motion.tbody>
+            </Table>
+          </motion.div>
+        ) : (
+          <div className="text-center py-20 bg-card/20 border border-white/10 rounded-2xl">
+            <p className="text-gray-400 mb-4">No audits match your search: "{searchQuery}".</p>
+            <Button onClick={() => router.push(`/dashboard/websites?search=${encodeURIComponent(searchQuery)}`)}>
+              Track and Audit "{searchQuery}"
+            </Button>
+          </div>
+        )
+      ) : (
+        <div className="text-center py-20 bg-card/20 border border-white/10 rounded-2xl">
+          <p className="text-gray-400 mb-4">No audits found. Run one to get started!</p>
+          <Button onClick={() => router.push("/dashboard/websites")}>Go to Websites</Button>
+        </div>
+      )}
   );
 }

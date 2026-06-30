@@ -1,11 +1,37 @@
 "use client";
 
+import { useState, useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { Bell, Search, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 
 export function DashboardTopNav() {
+  const [search, setSearch] = useState("");
+  const router = useRouter();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const query = new URLSearchParams(window.location.search).get("search") || "";
+      setSearch(query);
+    }
+  }, []);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (search) {
+        params.set("search", search);
+      } else {
+        params.delete("search");
+      }
+      router.push(`${pathname}?${params.toString()}`);
+    }
+  };
+
   return (
     <motion.header 
       initial={{ y: -20, opacity: 0 }}
@@ -20,8 +46,7 @@ export function DashboardTopNav() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
           className="relative flex flex-1 items-center" 
-          action="#" 
-          method="GET"
+          onSubmit={handleSearchSubmit}
         >
           <label htmlFor="search-field" className="sr-only">
             Search
@@ -36,6 +61,8 @@ export function DashboardTopNav() {
             placeholder="Search audits, websites..."
             type="search"
             name="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
           />
         </motion.form>
         <div className="flex items-center gap-x-4 lg:gap-x-6">

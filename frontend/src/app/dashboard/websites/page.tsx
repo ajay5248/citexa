@@ -33,8 +33,40 @@ export default function Websites() {
   const [newUrl, setNewUrl] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [runningAuditId, setRunningAuditId] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   
   const router = useRouter();
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const handleLocationChange = () => {
+        const query = new URLSearchParams(window.location.search).get("search") || "";
+        setSearchQuery(query);
+      };
+      
+      handleLocationChange();
+      
+      window.addEventListener("popstate", handleLocationChange);
+      
+      const originalPushState = window.history.pushState;
+      const originalReplaceState = window.history.replaceState;
+      
+      window.history.pushState = function(...args) {
+        originalPushState.apply(this, args);
+        handleLocationChange();
+      };
+      window.history.replaceState = function(...args) {
+        originalReplaceState.apply(this, args);
+        handleLocationChange();
+      };
+      
+      return () => {
+        window.removeEventListener("popstate", handleLocationChange);
+        window.history.pushState = originalPushState;
+        window.history.replaceState = originalReplaceState;
+      };
+    }
+  }, []);
 
   const fetchWebsites = useCallback(async () => {
     try {
@@ -132,6 +164,10 @@ export default function Websites() {
     }
   };
 
+  const filteredWebsites = websites.filter(website =>
+    website.url.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -165,75 +201,84 @@ export default function Websites() {
       </motion.div>
 
       {websites.length > 0 ? (
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="rounded-xl border border-white/10 bg-card/40 backdrop-blur-md overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative"
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
-          <Table>
-            <TableHeader>
-              <TableRow className="border-white/10 hover:bg-transparent bg-black/20">
-                <TableHead className="text-gray-300 font-medium">Website URL</TableHead>
-                <TableHead className="text-gray-300 font-medium">Status</TableHead>
-                <TableHead className="text-gray-300 font-medium">Created At</TableHead>
-                <TableHead className="text-right text-gray-300 font-medium">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <motion.tbody
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              className="divide-y divide-white/5"
-            >
-              {websites.map((website) => (
-                <motion.tr 
-                  key={website.id} 
-                  className="border-white/5 hover:bg-white/5 transition-colors group"
-                  variants={itemVariants}
-                >
-                  <TableCell className="font-medium text-white group-hover:text-primary transition-colors">{website.url}</TableCell>
-                  <TableCell>
-                    <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-green-500/10 text-green-400 border border-green-500/20 shadow-[0_0_10px_rgba(74,222,128,0.1)]">
-                      <div className="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5 animate-pulse" />
-                      Active
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-gray-400">{new Date(website.created_at).toLocaleDateString()}</TableCell>
-                  <TableCell className="text-right space-x-2">
-                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="inline-block">
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        disabled={runningAuditId === website.id}
-                        onClick={() => handleRunAudit(website.id)}
-                        className="text-primary hover:text-primary hover:bg-primary/10 border border-transparent hover:border-primary/30 transition-all"
-                      >
-                        {runningAuditId === website.id ? (
-                          <Loader2 className="h-4 w-4 animate-spin mr-1" />
-                        ) : (
-                          <Play className="h-4 w-4 mr-1" />
-                        )}
-                        Run Audit
-                      </Button>
-                    </motion.div>
-                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="inline-block">
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={() => handleDeleteWebsite(website.id)}
-                        className="text-red-400 hover:text-red-300 hover:bg-red-500/10 border border-transparent hover:border-red-500/30 transition-all"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </motion.div>
-                  </TableCell>
-                </motion.tr>
-              ))}
-            </motion.tbody>
-          </Table>
-        </motion.div>
+        filteredWebsites.length > 0 ? (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="rounded-xl border border-white/10 bg-card/40 backdrop-blur-md overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
+            <Table>
+              <TableHeader>
+                <TableRow className="border-white/10 hover:bg-transparent bg-black/20">
+                  <TableHead className="text-gray-300 font-medium">Website URL</TableHead>
+                  <TableHead className="text-gray-300 font-medium">Status</TableHead>
+                  <TableHead className="text-gray-300 font-medium">Created At</TableHead>
+                  <TableHead className="text-right text-gray-300 font-medium">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <motion.tbody
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                className="divide-y divide-white/5"
+              >
+                {filteredWebsites.map((website) => (
+                  <motion.tr 
+                    key={website.id} 
+                    className="border-white/5 hover:bg-white/5 transition-colors group"
+                    variants={itemVariants}
+                  >
+                    <TableCell className="font-medium text-white group-hover:text-primary transition-colors">{website.url}</TableCell>
+                    <TableCell>
+                      <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-green-500/10 text-green-400 border border-green-500/20 shadow-[0_0_10px_rgba(74,222,128,0.1)]">
+                        <div className="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5 animate-pulse" />
+                        Active
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-gray-400">{new Date(website.created_at).toLocaleDateString()}</TableCell>
+                    <TableCell className="text-right space-x-2">
+                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="inline-block">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          disabled={runningAuditId === website.id}
+                          onClick={() => handleRunAudit(website.id)}
+                          className="text-primary hover:text-primary hover:bg-primary/10 border border-transparent hover:border-primary/30 transition-all"
+                        >
+                          {runningAuditId === website.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                          ) : (
+                            <Play className="h-4 w-4 mr-1" />
+                          )}
+                          Run Audit
+                        </Button>
+                      </motion.div>
+                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="inline-block">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => handleDeleteWebsite(website.id)}
+                          className="text-red-400 hover:text-red-300 hover:bg-red-500/10 border border-transparent hover:border-red-500/30 transition-all"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </motion.div>
+                    </TableCell>
+                  </motion.tr>
+                ))}
+              </motion.tbody>
+            </Table>
+          </motion.div>
+        ) : (
+          <div className="text-center py-20 bg-card/20 border border-white/10 rounded-2xl">
+            <p className="text-gray-400 mb-4">No websites match your search: "{searchQuery}".</p>
+            <Button onClick={() => { setNewUrl(searchQuery); setShowAddDialog(true); }}>
+              Track "{searchQuery}"
+            </Button>
+          </div>
+        )
       ) : (
         <div className="text-center py-20 bg-card/20 border border-white/10 rounded-2xl">
           <p className="text-gray-400 mb-4">No websites tracked yet.</p>
