@@ -51,12 +51,12 @@ export default function Websites() {
       const originalPushState = window.history.pushState;
       const originalReplaceState = window.history.replaceState;
       
-      (window.history as any).pushState = function(data: any, unused: string, url?: string | URL | null) {
-        originalPushState.apply(window.history, [data, unused, url]);
+      (window.history as any).pushState = function(...args: any[]) {
+        originalPushState.apply(window.history, args as any);
         handleLocationChange();
       };
-      (window.history as any).replaceState = function(data: any, unused: string, url?: string | URL | null) {
-        originalReplaceState.apply(window.history, [data, unused, url]);
+      (window.history as any).replaceState = function(...args: any[]) {
+        originalReplaceState.apply(window.history, args as any);
         handleLocationChange();
       };
       
