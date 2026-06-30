@@ -30,6 +30,7 @@ interface Website {
 
 interface Audit {
   id: number;
+  website_id: number;
   status: string;
   schema_score: number;
   content_score: number;
