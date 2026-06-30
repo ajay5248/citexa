@@ -10,22 +10,32 @@ load_dotenv()
 # 2. Retrieve the PostgreSQL Database URL
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
 
-# 3. Handle Database Engine Creation
-if not SQLALCHEMY_DATABASE_URL:
-    print("WARNING: DATABASE_URL not set. Falling back to local SQLite database.")
-    SQLALCHEMY_DATABASE_URL = "sqlite:///./citexa.db"
+# 3. Handle Database Engine Creation with auto-fallback on connection failure
+engine = None
+if SQLALCHEMY_DATABASE_URL and not SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
+    try:
+        # Create a temporary engine to verify connectivity (3 second timeout)
+        temp_engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"connect_timeout": 3})
+        with temp_engine.connect() as conn:
+            pass
+        print("DATABASE: Successfully connected to PostgreSQL database.")
+        engine = create_engine(
+            SQLALCHEMY_DATABASE_URL,
+            pool_pre_ping=True,
+            pool_size=5,
+            max_overflow=10,
+            connect_args={"connect_timeout": 5}
+        )
+    except Exception as e:
+        print(f"DATABASE WARNING: Failed to connect to PostgreSQL ({e}). Falling back to local SQLite database.")
+        SQLALCHEMY_DATABASE_URL = "sqlite:///./citexa.db"
 
-if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
+if engine is None:
+    # Use SQLite engine
+    if not SQLALCHEMY_DATABASE_URL:
+        SQLALCHEMY_DATABASE_URL = "sqlite:///./citexa.db"
     engine = create_engine(
         SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
-    )
-else:
-    engine = create_engine(
-        SQLALCHEMY_DATABASE_URL,
-        pool_pre_ping=True,  # Automatically verifies connections before using them
-        pool_size=5,         # Standard pool size
-        max_overflow=10,      # Allow temporary overflow for bursts of traffic
-        connect_args={"connect_timeout": 5} # Fast timeout so startup doesn't block
     )
 
 # 5. Create a configured "Session" class

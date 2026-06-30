@@ -112,7 +112,15 @@ export default function Websites() {
         setShowAddDialog(false);
         fetchWebsites();
       } else {
-        alert("Failed to add website.");
+        const errorText = await res.text();
+        let message = "Failed to add website.";
+        try {
+          const errData = JSON.parse(errorText);
+          if (errData && errData.detail) message = `Failed to add website: ${errData.detail}`;
+        } catch (_) {
+          message = `Failed to add website: ${res.status} ${res.statusText}`;
+        }
+        alert(message);
       }
     } catch (e) {
       console.error("Error adding website:", e);
