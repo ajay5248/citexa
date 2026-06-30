@@ -24,7 +24,8 @@ else:
         SQLALCHEMY_DATABASE_URL,
         pool_pre_ping=True,  # Automatically verifies connections before using them
         pool_size=5,         # Standard pool size
-        max_overflow=10      # Allow temporary overflow for bursts of traffic
+        max_overflow=10,      # Allow temporary overflow for bursts of traffic
+        connect_args={"connect_timeout": 5} # Fast timeout so startup doesn't block
     )
 
 # 5. Create a configured "Session" class

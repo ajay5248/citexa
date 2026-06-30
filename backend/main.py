@@ -1,17 +1,21 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
+from contextlib import asynccontextmanager
 import os
 import models, schemas, database, crud, auth
 import httpx
 import secrets
 
-try:
-    models.Base.metadata.create_all(bind=database.engine)
-except Exception as db_err:
-    print(f"DATABASE INITIALIZATION WARNING: Failed to initialize database tables on boot. Error: {db_err}")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    try:
+        models.Base.metadata.create_all(bind=database.engine)
+    except Exception as db_err:
+        print(f"DATABASE INITIALIZATION WARNING: Failed to initialize database tables on startup. Error: {db_err}")
+    yield
 
-app = FastAPI(title="Citexa API")
+app = FastAPI(title="Citexa API", lifespan=lifespan)
 
 # Configure CORS
 allowed_origins = [
