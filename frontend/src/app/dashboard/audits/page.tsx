@@ -59,19 +59,19 @@ export default function Audits() {
       const originalPushState = window.history.pushState;
       const originalReplaceState = window.history.replaceState;
       
-      window.history.pushState = function(...args) {
-        originalPushState.apply(this, args);
+      (window.history as any).pushState = function(data: any, unused: string, url?: string | URL | null) {
+        originalPushState.apply(window.history, [data, unused, url]);
         handleLocationChange();
       };
-      window.history.replaceState = function(...args) {
-        originalReplaceState.apply(this, args);
+      (window.history as any).replaceState = function(data: any, unused: string, url?: string | URL | null) {
+        originalReplaceState.apply(window.history, [data, unused, url]);
         handleLocationChange();
       };
       
       return () => {
         window.removeEventListener("popstate", handleLocationChange);
-        window.history.pushState = originalPushState;
-        window.history.replaceState = originalReplaceState;
+        (window.history as any).pushState = originalPushState;
+        (window.history as any).replaceState = originalReplaceState;
       };
     }
   }, []);
