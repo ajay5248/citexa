@@ -253,5 +253,6 @@ export default function Audits() {
           <Button onClick={() => router.push("/dashboard/websites")}>Go to Websites</Button>
         </div>
       )}
+    </div>
   );
 }
