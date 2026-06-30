@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useState, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,6 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useGoogleLogin } from "@react-oauth/google";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
 
 export default function Register() {
   const router = useRouter();
