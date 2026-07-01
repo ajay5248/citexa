@@ -18,6 +18,20 @@ import secrets
 async def lifespan(app: FastAPI):
     try:
         models.Base.metadata.create_all(bind=database.engine)
+        # Auto-migration: Check if analysis_data column exists in competitors table
+        from sqlalchemy import text
+        try:
+            with database.engine.begin() as conn:
+                res = conn.execute(text("""
+                    SELECT column_name 
+                    FROM information_schema.columns 
+                    WHERE table_name = 'competitors' AND column_name = 'analysis_data'
+                """))
+                if not res.fetchone():
+                    print("DATABASE AUTO-MIGRATION: Adding 'analysis_data' column to 'competitors' table.")
+                    conn.execute(text("ALTER TABLE competitors ADD COLUMN analysis_data TEXT"))
+        except Exception as mig_err:
+            print(f"DATABASE AUTO-MIGRATION WARNING: Failed to auto-migrate 'competitors' table. Error: {mig_err}")
     except Exception as db_err:
         print(f"DATABASE INITIALIZATION WARNING: Failed to initialize database tables on startup. Error: {db_err}")
     yield
