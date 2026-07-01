@@ -109,17 +109,19 @@ export default function Competitors() {
   // Poll for analyzing competitors dynamically
   useEffect(() => {
     const hasAnalyzing = competitors.some(c => c.analysis_data === null);
-    if (!hasAnalyzing || !selectedWebsiteId) return;
+    const activeWebsiteId = selectedWebsiteId;
+    if (!hasAnalyzing || !activeWebsiteId) return;
 
     const interval = setInterval(() => {
       const token = localStorage.getItem("token");
       if (token) {
-        fetchCompetitors(selectedWebsiteId, token);
+        fetchCompetitors(activeWebsiteId, token);
       }
     }, 3000);
 
     return () => clearInterval(interval);
   }, [competitors, selectedWebsiteId, fetchCompetitors]);
+
 
   const handleAddCompetitor = async () => {
     if (!selectedWebsiteId || !newCompUrl) return;
