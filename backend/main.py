@@ -121,4 +121,32 @@ app.include_router(tools.router)
 app.include_router(websites.router)
 app.include_router(competitors.router)
 
+@app.get("/debug-db")
+def debug_db():
+    from sqlalchemy import text
+    db = database.SessionLocal()
+    try:
+        # Check tables
+        res = db.execute(text("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"))
+        tables = [row[0] for row in res]
+        
+        # Test query on competitors
+        comp_err = None
+        try:
+            db.execute(text("SELECT * FROM competitors LIMIT 1"))
+        except Exception as e:
+            comp_err = str(e)
+            
+        return {
+            "database_url_configured": os.getenv("DATABASE_URL") is not None,
+            "database_url_startswith": os.getenv("DATABASE_URL")[:15] if os.getenv("DATABASE_URL") else None,
+            "tables": tables,
+            "competitors_query_error": comp_err
+        }
+    except Exception as e:
+        return {"error": str(e)}
+    finally:
+        db.close()
+
+
 
