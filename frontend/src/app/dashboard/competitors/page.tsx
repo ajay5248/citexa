@@ -106,6 +106,21 @@ export default function Competitors() {
     fetchData();
   }, [fetchData]);
 
+  // Poll for analyzing competitors dynamically
+  useEffect(() => {
+    const hasAnalyzing = competitors.some(c => c.analysis_data === null);
+    if (!hasAnalyzing || !selectedWebsiteId) return;
+
+    const interval = setInterval(() => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        fetchCompetitors(selectedWebsiteId, token);
+      }
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [competitors, selectedWebsiteId, fetchCompetitors]);
+
   const handleAddCompetitor = async () => {
     if (!selectedWebsiteId || !newCompUrl) return;
     setAdding(true);
@@ -168,15 +183,33 @@ export default function Competitors() {
           <p className="text-gray-400 mt-1">Track and compare your AI visibility against industry rivals.</p>
         </div>
         
-        <div className="flex items-center space-x-2 w-full md:w-auto">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto">
+          {websites.length > 0 && (
+            <select
+              value={selectedWebsiteId || ""}
+              onChange={(e) => {
+                const val = Number(e.target.value);
+                setSelectedWebsiteId(val);
+                const token = localStorage.getItem("token");
+                fetchCompetitors(val, token!);
+              }}
+              className="bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-primary/50 cursor-pointer h-10 w-full sm:w-[200px] transition-colors"
+            >
+              {websites.map((web) => (
+                <option key={web.id} value={web.id} className="bg-[#121214] text-white">
+                  {web.url.replace("https://", "").replace("http://", "")}
+                </option>
+              ))}
+            </select>
+          )}
           <Input 
             placeholder="competitor.com" 
             value={newCompUrl}
             onChange={(e) => setNewCompUrl(e.target.value)}
-            className="bg-black/20 border-white/10 focus:border-primary/50 max-w-[200px] transition-colors"
+            className="bg-black/20 border-white/10 focus:border-primary/50 w-full sm:max-w-[200px] transition-colors"
           />
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button onClick={handleAddCompetitor} disabled={adding || !newCompUrl} className="shadow-[0_0_15px_rgba(var(--primary),0.3)] hover:shadow-[0_0_25px_rgba(var(--primary),0.5)] transition-all">
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="w-full sm:w-auto">
+            <Button onClick={handleAddCompetitor} disabled={adding || !newCompUrl} className="w-full sm:w-auto shadow-[0_0_15px_rgba(var(--primary),0.3)] hover:shadow-[0_0_25px_rgba(var(--primary),0.5)] transition-all">
               {adding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />} Add
             </Button>
           </motion.div>
