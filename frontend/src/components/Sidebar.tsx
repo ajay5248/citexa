@@ -1,12 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { LayoutDashboard, Globe, FileSearch, Users, FileText, Settings, CreditCard, Wand2 } from "lucide-react";
 import { motion } from "framer-motion";
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    router.push("/login");
+  };
 
   const navItems = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -47,40 +53,57 @@ export function Sidebar() {
             transition: { staggerChildren: 0.05 }
           }
         }}
-        className="space-y-2 p-4"
+        className="p-4 flex flex-col justify-between h-[calc(100vh-4rem)]"
       >
-        {navItems.map((item) => {
-          const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(`${item.href}/`));
-          
-          return (
-            <motion.div key={item.name} variants={{ hidden: { opacity: 0, x: -10 }, visible: { opacity: 1, x: 0 } }}>
-              <Link
-                href={item.href}
-                className={`group relative flex items-center space-x-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-300 overflow-hidden ${
-                  isActive 
-                    ? "text-white bg-primary/10 shadow-[inset_2px_0_0_0_rgba(var(--primary),1)]" 
-                    : "text-gray-400 hover:text-white hover:bg-white/5"
-                }`}
-              >
-                {/* Neon Background Pulse for Active State */}
-                {isActive && (
-                  <motion.div 
-                    layoutId="active-nav"
-                    className="absolute inset-0 bg-gradient-to-r from-primary/20 to-transparent opacity-50"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.3 }}
-                  />
-                )}
-                
-                <motion.div whileHover={{ scale: 1.15, rotate: [0, -5, 5, 0] }} transition={{ duration: 0.3 }}>
-                  <item.icon className={`h-4 w-4 relative z-10 transition-colors ${isActive ? "text-primary drop-shadow-[0_0_8px_rgba(var(--primary),0.8)]" : "group-hover:text-primary/70"}`} />
-                </motion.div>
-                <span className="relative z-10">{item.name}</span>
-              </Link>
-            </motion.div>
-          );
-        })}
+        <div className="space-y-2">
+          {navItems.map((item) => {
+            const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(`${item.href}/`));
+            
+            return (
+              <motion.div key={item.name} variants={{ hidden: { opacity: 0, x: -10 }, visible: { opacity: 1, x: 0 } }}>
+                <Link
+                  href={item.href}
+                  className={`group relative flex items-center space-x-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-300 overflow-hidden ${
+                    isActive 
+                      ? "text-white bg-primary/10 shadow-[inset_2px_0_0_0_rgba(var(--primary),1)]" 
+                      : "text-gray-400 hover:text-white hover:bg-white/5"
+                  }`}
+                >
+                  {/* Neon Background Pulse for Active State */}
+                  {isActive && (
+                    <motion.div 
+                      layoutId="active-nav"
+                      className="absolute inset-0 bg-gradient-to-r from-primary/20 to-transparent opacity-50"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.3 }}
+                    />
+                  )}
+                  
+                  <motion.div whileHover={{ scale: 1.15, rotate: [0, -5, 5, 0] }} transition={{ duration: 0.3 }}>
+                    <item.icon className={`h-4 w-4 relative z-10 transition-colors ${isActive ? "text-primary drop-shadow-[0_0_8px_rgba(var(--primary),0.8)]" : "group-hover:text-primary/70"}`} />
+                  </motion.div>
+                  <span className="relative z-10">{item.name}</span>
+                </Link>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        {/* Log Out Button */}
+        <div className="pt-4 border-t border-white/10 mb-4">
+          <motion.div variants={{ hidden: { opacity: 0, x: -10 }, visible: { opacity: 1, x: 0 } }}>
+            <button
+              onClick={handleLogout}
+              className="group relative flex w-full items-center space-x-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all border border-transparent hover:border-red-500/20 cursor-pointer"
+            >
+              <svg className="h-4 w-4 text-red-400 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+              </svg>
+              <span>Log Out</span>
+            </button>
+          </motion.div>
+        </div>
       </motion.div>
     </div>
   );

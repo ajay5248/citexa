@@ -114,6 +114,11 @@ export default function Websites() {
         setShowAddDialog(false);
         fetchWebsites();
       } else {
+        if (res.status === 401) {
+          localStorage.removeItem("token");
+          router.push("/login");
+          return;
+        }
         const errorText = await res.text();
         let message = "Failed to add website.";
         try {
@@ -142,6 +147,11 @@ export default function Websites() {
       if (res.ok) {
         fetchWebsites();
       } else {
+        if (res.status === 401) {
+          localStorage.removeItem("token");
+          router.push("/login");
+          return;
+        }
         alert("Failed to delete website.");
       }
     } catch (e) {
@@ -165,6 +175,11 @@ export default function Websites() {
         const audit = await res.json();
         router.push(`/dashboard/audits/${audit.id}`);
       } else {
+        if (res.status === 401) {
+          localStorage.removeItem("token");
+          router.push("/login");
+          return;
+        }
         alert("Failed to start audit.");
       }
     } catch (e) {
