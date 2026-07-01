@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +22,8 @@ const itemVariants = {
   hidden: { opacity: 0, x: -10 },
   visible: { opacity: 1, x: 0, transition: { duration: 0.4 } },
 };
+
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" && (window.location.hostname.includes("localhost") || window.location.hostname.includes("127.0.0.1")) ? "/api" : "https://citexa.onrender.com");
 
 export default function ToolsPage() {
   const [activeTab, setActiveTab] = useState<"faq" | "schema">("faq");
@@ -51,7 +53,7 @@ export default function ToolsPage() {
     setResult(null);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("/api/tools/generate-faq", {
+      const res = await fetch(`${apiUrl}/tools/generate-faq`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -64,6 +66,11 @@ export default function ToolsPage() {
       if (res.ok) {
         setResult(data);
       } else {
+        if (res.status === 401) {
+          localStorage.removeItem("token");
+          window.location.href = "/login";
+          return;
+        }
         alert(data.detail || "Failed to generate FAQ");
       }
     } catch (e) {
@@ -79,7 +86,7 @@ export default function ToolsPage() {
     setResult(null);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("/api/tools/generate-schema", {
+      const res = await fetch(`${apiUrl}/tools/generate-schema`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -92,6 +99,11 @@ export default function ToolsPage() {
       if (res.ok) {
         setResult(data);
       } else {
+        if (res.status === 401) {
+          localStorage.removeItem("token");
+          window.location.href = "/login";
+          return;
+        }
         alert(data.detail || "Failed to generate Schema");
       }
     } catch (e) {

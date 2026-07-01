@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Table, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Loader2 } from "lucide-react";
@@ -36,6 +36,8 @@ interface Competitor {
   created_at: string;
 }
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" && (window.location.hostname.includes("localhost") || window.location.hostname.includes("127.0.0.1")) ? "/api" : "https://citexa.onrender.com");
+
 export default function Competitors() {
   const [websites, setWebsites] = useState<Website[]>([]);
   const [selectedWebsiteId, setSelectedWebsiteId] = useState<number | null>(null);
@@ -47,11 +49,19 @@ export default function Competitors() {
 
   const fetchCompetitors = useCallback(async (websiteId: number, token: string) => {
     try {
-      const compRes = await fetch(`/api/competitors/${websiteId}`, {
+      const compRes = await fetch(`${apiUrl}/competitors/${websiteId}`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
-      const compData = await compRes.json();
-      setCompetitors(compData);
+      if (compRes.ok) {
+        const compData = await compRes.json();
+        setCompetitors(compData);
+      } else {
+        if (compRes.status === 401) {
+          localStorage.removeItem("token");
+          window.location.href = "/login";
+          return;
+        }
+      }
     } catch (e) {
       console.error(e);
     } finally {
@@ -64,16 +74,25 @@ export default function Competitors() {
     try {
       const token = localStorage.getItem("token");
       // Fetch websites
-      const webRes = await fetch("/api/websites/", {
+      const webRes = await fetch(`${apiUrl}/websites/`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
-      const webData = await webRes.json();
-      setWebsites(webData);
-      
-      if (webData.length > 0) {
-        setSelectedWebsiteId(webData[0].id);
-        fetchCompetitors(webData[0].id, token!);
+      if (webRes.ok) {
+        const webData = await webRes.json();
+        setWebsites(webData);
+        
+        if (webData.length > 0) {
+          setSelectedWebsiteId(webData[0].id);
+          fetchCompetitors(webData[0].id, token!);
+        } else {
+          setLoading(false);
+        }
       } else {
+        if (webRes.status === 401) {
+          localStorage.removeItem("token");
+          window.location.href = "/login";
+          return;
+        }
         setLoading(false);
       }
     } catch (e) {
@@ -92,7 +111,7 @@ export default function Competitors() {
     setAdding(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("/api/competitors/", {
+      const res = await fetch(`${apiUrl}/competitors/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -104,6 +123,11 @@ export default function Competitors() {
         setNewCompUrl("");
         fetchCompetitors(selectedWebsiteId, token!);
       } else {
+        if (res.status === 401) {
+          localStorage.removeItem("token");
+          window.location.href = "/login";
+          return;
+        }
         alert("Failed to add competitor");
       }
     } catch (e) {
