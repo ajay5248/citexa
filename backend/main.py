@@ -128,12 +128,13 @@ async def auth_google(token_data: schemas.GoogleToken, db: Session = Depends(dat
 def read_users_me(current_user: schemas.User = Depends(auth.get_current_user)):
     return current_user
 
-from routers import audits, tools, websites, competitors
+from routers import audits, tools, websites, competitors, reports
 
 app.include_router(audits.router)
 app.include_router(tools.router)
 app.include_router(websites.router)
 app.include_router(competitors.router)
+app.include_router(reports.router)
 
 @app.get("/debug-db")
 def debug_db():

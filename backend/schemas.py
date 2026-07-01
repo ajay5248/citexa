@@ -86,3 +86,20 @@ class Competitor(CompetitorBase):
 
     class Config:
         from_attributes = True
+
+class ReportBase(BaseModel):
+    title: str
+    report_type: str # executive_summary, deep_dive, technical_audit
+
+class ReportCreate(ReportBase):
+    pass
+
+class Report(ReportBase):
+    id: int
+    owner_id: int
+    file_path: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
