@@ -26,6 +26,8 @@ interface Website {
   created_at: string;
 }
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" && (window.location.hostname.includes("localhost") || window.location.hostname.includes("127.0.0.1")) ? "/api" : "https://citexa.onrender.com");
+
 export default function Websites() {
   const [websites, setWebsites] = useState<Website[]>([]);
   const [loading, setLoading] = useState(true);
@@ -75,7 +77,7 @@ export default function Websites() {
         router.push("/login");
         return;
       }
-      const res = await fetch("/api/websites/", {
+      const res = await fetch(`${apiUrl}/websites/`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (res.ok) {
@@ -99,7 +101,7 @@ export default function Websites() {
     setSubmitting(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("/api/websites/", {
+      const res = await fetch(`${apiUrl}/websites/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -133,7 +135,7 @@ export default function Websites() {
     if (!confirm("Are you sure you want to delete this website? This will delete all associated audits and competitors.")) return;
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`/api/websites/${id}`, {
+      const res = await fetch(`${apiUrl}/websites/${id}`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -151,7 +153,7 @@ export default function Websites() {
     setRunningAuditId(websiteId);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("/api/audits/", {
+      const res = await fetch(`${apiUrl}/audits/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

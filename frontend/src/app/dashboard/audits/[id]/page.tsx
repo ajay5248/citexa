@@ -24,7 +24,7 @@ export default function AuditDetail() {
           return;
         }
 
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" && (window.location.hostname.includes("localhost") || window.location.hostname.includes("127.0.0.1")) ? "/api" : "https://citexa.onrender.com");
 
         // Fetch specific audit
         const auditRes = await fetch(`${apiUrl}/audits/${params.id}`, {

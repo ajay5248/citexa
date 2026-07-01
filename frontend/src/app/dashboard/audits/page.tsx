@@ -38,6 +38,8 @@ interface Audit {
   created_at: string;
 }
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" && (window.location.hostname.includes("localhost") || window.location.hostname.includes("127.0.0.1")) ? "/api" : "https://citexa.onrender.com");
+
 export default function Audits() {
   const router = useRouter();
   const [audits, setAudits] = useState<Audit[]>([]);
@@ -82,14 +84,14 @@ export default function Audits() {
       const token = localStorage.getItem("token");
       
       // Fetch websites
-      const webRes = await fetch("/api/websites/", {
+      const webRes = await fetch(`${apiUrl}/websites/`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       const webData = await webRes.json();
       setWebsites(Array.isArray(webData) ? webData : []);
 
       // Fetch audits
-      const auditRes = await fetch("/api/audits/", {
+      const auditRes = await fetch(`${apiUrl}/audits/`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       const auditData = await auditRes.json();
@@ -117,7 +119,7 @@ export default function Audits() {
     try {
       const token = localStorage.getItem("token");
       // Run audit for the first website by default
-      const res = await fetch("/api/audits/", {
+      const res = await fetch(`${apiUrl}/audits/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

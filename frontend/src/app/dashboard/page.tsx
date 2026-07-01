@@ -38,7 +38,7 @@ export default function Dashboard() {
           return;
         }
 
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" && (window.location.hostname.includes("localhost") || window.location.hostname.includes("127.0.0.1")) ? "/api" : "https://citexa.onrender.com");
 
         const [websitesRes, auditsRes] = await Promise.all([
           fetch(`${apiUrl}/websites/`, { headers: { "Authorization": `Bearer ${token}` } }),
