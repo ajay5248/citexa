@@ -130,10 +130,24 @@ def debug_db():
         res = db.execute(text("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"))
         tables = [row[0] for row in res]
         
-        # Test query on competitors
+        # Test query on competitors columns
+        columns_res = db.execute(text("""
+            SELECT column_name, data_type 
+            FROM information_schema.columns 
+            WHERE table_name = 'competitors'
+        """))
+        columns = {row[0]: row[1] for row in columns_res}
+
+        # Test query on competitors rows
         comp_err = None
+        rows = []
         try:
-            db.execute(text("SELECT * FROM competitors LIMIT 1"))
+            rows_res = db.execute(text("SELECT * FROM competitors"))
+            for row in rows_res:
+                r_dict = {}
+                for k, v in row._mapping.items():
+                    r_dict[k] = v.isoformat() if hasattr(v, "isoformat") else v
+                rows.append(r_dict)
         except Exception as e:
             comp_err = str(e)
             
@@ -141,6 +155,8 @@ def debug_db():
             "database_url_configured": os.getenv("DATABASE_URL") is not None,
             "database_url_startswith": os.getenv("DATABASE_URL")[:15] if os.getenv("DATABASE_URL") else None,
             "tables": tables,
+            "columns": columns,
+            "rows": rows,
             "competitors_query_error": comp_err
         }
     except Exception as e:
