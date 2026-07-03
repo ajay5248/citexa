@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 import os
 import json
+import datetime
 from openai import OpenAI
 import schemas, models, database, auth
 import wikipedia
@@ -302,3 +303,83 @@ def generate_schema(request: SchemaRequest, db: Session = Depends(database.get_d
         return SchemaResponse(json_ld=response_json.get("json_ld", ""))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+class BulkSchemaItem(BaseModel):
+    url: str
+    name: str
+    description: Optional[str] = ""
+
+class BulkSchemaRequest(BaseModel):
+    platform: str
+    schema_type: str
+    items: List[BulkSchemaItem]
+
+class BulkSchemaResponse(BaseModel):
+    schemas: List[dict]
+
+@router.post("/generate-bulk-schema", response_model=BulkSchemaResponse)
+def generate_bulk_schema(request: BulkSchemaRequest, db: Session = Depends(database.get_db), current_user: schemas.User = Depends(auth.get_current_user)):
+    # Generate schemas for up to 1000 items
+    items = request.items[:1000]
+    generated = []
+    
+    for idx, item in enumerate(items):
+        logo_url = f"{item.url.rstrip('/')}/logo.png"
+        
+        # Build base dynamic schema layout depending on selected type
+        schema_block = {
+            "@context": "https://schema.org",
+            "@type": request.schema_type,
+            "name": item.name,
+            "url": item.url,
+            "description": item.description or f"AEO optimized entity for {item.name}."
+        }
+        
+        if request.schema_type == "Product":
+            schema_block.update({
+                "image": f"{item.url.rstrip('/')}/product.jpg",
+                "offers": {
+                    "@type": "Offer",
+                    "priceCurrency": "USD",
+                    "price": "99.00",
+                    "availability": "https://schema.org/InStock"
+                }
+            })
+        elif request.schema_type == "Article":
+            schema_block.update({
+                "headline": item.name,
+                "datePublished": datetime.date.today().isoformat(),
+                "author": {
+                    "@type": "Person",
+                    "name": current_user.name or "Staff Writer"
+                }
+            })
+        elif request.schema_type == "LocalBusiness":
+            schema_block.update({
+                "address": {
+                    "@type": "PostalAddress",
+                    "streetAddress": f"{100 + idx} Main St",
+                    "addressLocality": "Silicon Valley",
+                    "addressRegion": "CA",
+                    "postalCode": "94025",
+                    "addressCountry": "US"
+                },
+                "telephone": "+1-800-555-0199"
+            })
+        elif request.schema_type == "Organization":
+            schema_block.update({
+                "logo": logo_url,
+                "sameAs": [
+                    f"https://www.facebook.com/{item.name.lower().replace(' ', '')}",
+                    f"https://twitter.com/{item.name.lower().replace(' ', '')}"
+                ]
+            })
+            
+        generated.append({
+            "url": item.url,
+            "json_ld": f"""<script type="application/ld+json">
+{json.dumps(schema_block, indent=2)}
+</script>"""
+        })
+        
+    return BulkSchemaResponse(schemas=generated)
