@@ -14,8 +14,8 @@ router = APIRouter(
     dependencies=[Depends(auth.get_current_user)],
 )
 
-# Use dummy key fallback
-client = OpenAI(api_key=os.getenv("LLM_API_KEY") or "dummy_key")
+API_KEY = os.getenv("LLM_API_KEY") or os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key=API_KEY or "dummy_key")
 
 class FAQRequest(BaseModel):
     url: Optional[str] = None
@@ -77,7 +77,7 @@ def generate_faq(request: FAQRequest, db: Session = Depends(database.get_db), cu
     else:
         grounding_context = f"Wikipedia Grounding Summary:\n{wiki_summary}\nWikipedia URL: {wiki_url}"
 
-    if not os.getenv("LLM_API_KEY"):
+    if not API_KEY:
         # Dynamic RAG-powered fallback if no API key is provided
         mock_faqs = []
         base_templates = [
@@ -228,7 +228,7 @@ def generate_schema(request: SchemaRequest, db: Session = Depends(database.get_d
     except Exception:
         wiki_summary = "No direct Wikipedia entry found for entity."
         
-    if not os.getenv("LLM_API_KEY"):
+    if not API_KEY:
         # Rich Dynamic Schema fallback generator
         same_as_links = [
             f"https://www.facebook.com/{request.name.lower().replace(' ', '')}",

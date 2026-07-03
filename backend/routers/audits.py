@@ -17,7 +17,8 @@ import os
 # Trigger reload
 
 # Use a dummy key if not provided so the app starts without crashing
-client = OpenAI(api_key=os.getenv("LLM_API_KEY") or "dummy_key_to_prevent_crash")
+API_KEY = os.getenv("LLM_API_KEY") or os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key=API_KEY or "dummy_key_to_prevent_crash")
 
 def perform_real_audit(audit_id: int, url: str):
     db = database.SessionLocal()
@@ -48,7 +49,7 @@ def perform_real_audit(audit_id: int, url: str):
         "recommendations": (list of 3 strings for improving AEO)
         """
         
-        if not os.getenv("LLM_API_KEY"):
+        if not API_KEY:
             # Fallback if no API key is provided
             response_json = {
                 "overall_score": 75.0,

@@ -14,7 +14,8 @@ router = APIRouter(
     dependencies=[Depends(auth.get_current_user)],
 )
 
-client = OpenAI(api_key=os.getenv("LLM_API_KEY") or "dummy_key")
+API_KEY = os.getenv("LLM_API_KEY") or os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key=API_KEY or "dummy_key")
 
 class CompetitorResponse(schemas.Competitor):
     pass
@@ -66,7 +67,7 @@ def analyze_competitor_bg(competitor_id: int, my_url: str, comp_url: str):
         "opportunities": (list of 2 strings: how my website can beat them)
         """
         
-        if not os.getenv("LLM_API_KEY"):
+        if not API_KEY:
             response_json = {
                 "visibility_score": 85.0,
                 "strengths": ["Strong brand presence", "High citation count"],
