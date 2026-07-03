@@ -243,6 +243,11 @@ export default function Billing() {
                     Current Active
                   </div>
                 )}
+                {isPaid && (
+                  <div className="absolute top-0 right-0 bg-amber-500/20 text-amber-400 border-l border-b border-amber-500/30 text-[9px] font-bold tracking-wider px-3 py-1 rounded-bl-lg uppercase">
+                    Upcoming
+                  </div>
+                )}
                 
                 <div>
                   <CardHeader>
@@ -266,30 +271,33 @@ export default function Billing() {
                 </div>
 
                 <div className="p-6 pt-0 mt-4">
-                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  {isPaid ? (
                     <Button 
-                      onClick={() => handleUpgrade(planKey)}
-                      disabled={isCurrent || actionLoading !== null}
-                      variant={isCurrent ? "outline" : "default"}
-                      className={`w-full text-xs font-semibold h-10 ${
-                        isCurrent 
-                          ? "border-primary/50 text-primary cursor-default hover:bg-transparent" 
-                          : planKey === "pro"
-                            ? "bg-primary hover:bg-primary/95 text-primary-foreground shadow-[0_0_15px_rgba(var(--primary),0.3)]"
-                            : "bg-white/5 border border-white/10 hover:bg-white/10 text-white"
-                      }`}
+                      disabled
+                      className="w-full text-xs font-semibold h-10 bg-white/5 border border-white/5 text-gray-500 cursor-not-allowed"
                     >
-                      {actionLoading === planKey ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : isCurrent ? (
-                        "Active Plan"
-                      ) : isPaid ? (
-                        "Upgrade Now"
-                      ) : (
-                        "Downgrade Plan"
-                      )}
+                      Upcoming Tier
                     </Button>
-                  </motion.div>
+                  ) : (
+                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                      <Button 
+                        onClick={() => handleUpgrade(planKey)}
+                        disabled={isCurrent || actionLoading !== null}
+                        variant={isCurrent ? "outline" : "default"}
+                        className={`w-full text-xs font-semibold h-10 ${
+                          isCurrent 
+                            ? "border-primary/50 text-primary cursor-default hover:bg-transparent" 
+                            : "bg-white/5 border border-white/10 hover:bg-white/10 text-white"
+                        }`}
+                      >
+                        {actionLoading === planKey ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          "Active Plan"
+                        )}
+                      </Button>
+                    </motion.div>
+                  )}
                 </div>
               </Card>
             </motion.div>
