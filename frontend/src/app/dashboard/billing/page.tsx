@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Check } from "lucide-react";
-import { motion } from "framer-motion";
+import { Check, Loader2, Sparkles, AlertCircle } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -19,26 +20,141 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
 };
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" && (window.location.hostname.includes("localhost") || window.location.hostname.includes("127.0.0.1")) ? "/api" : "https://citexa.onrender.com");
+
 export default function Billing() {
-  const [plan, setPlan] = useState("pro");
+  const [activePlan, setActivePlan] = useState<string>("free");
+  const [subscriptionStatus, setSubscriptionStatus] = useState<string>("inactive");
+  const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [message, setMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
+  const router = useRouter();
+
+  const fetchStatus = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        router.push("/login");
+        return;
+      }
+      const res = await fetch(`${apiUrl}/billing/status`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setActivePlan(data.plan);
+        setSubscriptionStatus(data.subscription_status);
+      }
+    } catch (e) {
+      console.error("Error fetching billing status:", e);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const storedPlan = localStorage.getItem("selected_plan");
-      if (storedPlan) {
-        setPlan(storedPlan);
+    const handleUrlCallback = async () => {
+      if (typeof window === "undefined") return;
+
+      const params = new URLSearchParams(window.location.search);
+      const statusParam = params.get("status");
+      const planParam = params.get("plan");
+
+      if (statusParam === "success" && planParam) {
+        try {
+          const token = localStorage.getItem("token");
+          // Trigger simulated database update in backend
+          const res = await fetch(`${apiUrl}/billing/simulate-checkout-success`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({ plan_name: planParam })
+          });
+
+          if (res.ok) {
+            setMessage({
+              text: `Congratulations! You have successfully upgraded to the ${planParam.toUpperCase()} plan!`,
+              type: "success"
+            });
+            // Clear search params
+            window.history.replaceState({}, document.title, window.location.pathname);
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      } else if (statusParam === "cancelled") {
+        setMessage({
+          text: "Checkout cancelled. You have not been charged.",
+          type: "error"
+        });
+        window.history.replaceState({}, document.title, window.location.pathname);
       }
+
+      await fetchStatus();
+    };
+
+    handleUrlCallback();
+  }, [router]);
+
+  const handleUpgrade = async (planName: string) => {
+    setActionLoading(planName);
+    setMessage(null);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${apiUrl}/billing/create-checkout-session`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ plan_name: planName })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.checkout_url) {
+          if (data.simulated) {
+            // Simulated local redirect
+            router.push(data.checkout_url);
+          } else {
+            // Real Stripe Checkout redirect
+            window.location.href = data.checkout_url;
+          }
+        }
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.detail || "Failed to create checkout session");
+      }
+    } catch (e) {
+      setMessage({
+        text: e instanceof Error ? e.message : "Failed to initiate checkout process",
+        type: "error"
+      });
+      setActionLoading(null);
     }
-  }, []);
+  };
 
   const planInfo = {
+    free: {
+      name: "Free Trial",
+      price: "$0",
+      features: [
+        "Track 1 Website",
+        "3 AI Audits total",
+        "AEO Schema & FAQ Tool access",
+        "Wikipedia Crawl simulation"
+      ]
+    },
     starter: {
       name: "Starter Plan",
       price: "$49",
       features: [
-        "Track 1 Website",
-        "10 AI Audits per month",
-        "Basic Schema Generation"
+        "Track 2 Websites",
+        "10 AI Audits total",
+        "Full AEO FAQ Generator",
+        "JSON-LD Schema Creator"
       ]
     },
     pro: {
@@ -47,8 +163,8 @@ export default function Billing() {
       features: [
         "Track up to 10 Websites",
         "Unlimited AI Audits",
-        "Advanced Schema & FAQs",
-        "Competitor Tracking"
+        "Competitor Tracking (Compare URL)",
+        "Advanced LLM Audit Recommendations"
       ]
     },
     enterprise: {
@@ -56,89 +172,129 @@ export default function Billing() {
       price: "$299",
       features: [
         "Unlimited Websites",
-        "API Access",
-        "White-label Reports",
-        "Dedicated Account Manager"
+        "Unlimited Audits",
+        "Custom PDF Executive Reports",
+        "Dedicated Platform Support"
       ]
     }
   };
 
-  const currentPlan = planInfo[plan as keyof typeof planInfo] || planInfo.pro;
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+        >
+          <Loader2 className="h-10 w-10 text-primary drop-shadow-[0_0_10px_rgba(var(--primary),0.8)]" />
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-8 max-w-4xl relative">
+    <div className="space-y-8 max-w-5xl relative">
+      {/* Background glow effects */}
+      <div className="absolute top-[-10%] left-[20%] w-80 h-80 bg-primary/10 rounded-full blur-[100px] pointer-events-none -z-10" />
+      <div className="absolute bottom-[20%] right-[10%] w-80 h-80 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none -z-10" />
+
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
         <h2 className="text-2xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">Billing & Plans</h2>
-        <p className="text-gray-400 mt-1">Manage your subscription and billing details.</p>
+        <p className="text-gray-400 mt-1">Select and manage your subscription plans.</p>
       </motion.div>
 
+      {message && (
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className={`p-4 rounded-xl border text-sm text-center font-medium flex items-center justify-center gap-2 ${message.type === 'success' ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-red-500/10 text-red-500 border-red-500/20'}`}
+        >
+          {message.type === 'success' ? <Sparkles className="h-5 w-5 animate-bounce" /> : <AlertCircle className="h-5 w-5" />}
+          {message.text}
+        </motion.div>
+      )}
+
+      {/* Plan Display Cards Grid */}
       <motion.div 
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="grid md:grid-cols-2 gap-6"
+        className="grid md:grid-cols-2 lg:grid-cols-4 gap-6"
       >
-        <motion.div variants={itemVariants}>
-          <Card className="bg-card/40 backdrop-blur-md border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.12)] h-full relative overflow-hidden group">
-            <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <CardHeader>
-              <CardTitle className="text-white">Current Plan</CardTitle>
-              <CardDescription className="text-primary">You are currently on the {currentPlan.name}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="text-4xl font-bold text-white drop-shadow-md flex items-end">
-                {currentPlan.price}<span className="text-xl text-gray-400 font-normal ml-1 mb-1">/mo</span>
-              </div>
-              <ul className="space-y-3">
-                {currentPlan.features.map((feature, i) => (
-                  <li key={i} className="flex items-center text-sm text-gray-300 group-hover:text-white transition-colors">
-                    <Check className="h-4 w-4 mr-2 text-green-400 drop-shadow-[0_0_5px_rgba(74,222,128,0.8)]" /> 
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Button variant="outline" className="w-full bg-black/20 border-white/10 hover:border-primary/50 hover:bg-primary/10 text-primary transition-all shadow-[0_0_15px_rgba(var(--primary),0.05)] hover:shadow-[0_0_20px_rgba(var(--primary),0.2)]">
-                  Manage Subscription
-                </Button>
-              </motion.div>
-            </CardContent>
-          </Card>
-        </motion.div>
+        {(Object.keys(planInfo) as Array<keyof typeof planInfo>).map((planKey) => {
+          const plan = planInfo[planKey];
+          const isCurrent = activePlan === planKey;
+          const isPaid = planKey !== "free";
 
-        <motion.div variants={itemVariants}>
-          <Card className="bg-card/40 backdrop-blur-md border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.12)] h-full relative overflow-hidden group">
-            <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-blue-500/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <CardHeader>
-              <CardTitle className="text-white">Payment Method</CardTitle>
-              <CardDescription className="text-gray-400">Update your billing information</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <motion.div 
-                whileHover={{ scale: 1.02 }}
-                className="flex items-center space-x-4 p-4 border border-white/10 rounded-md bg-black/20 hover:border-blue-500/30 transition-colors"
-              >
-                <div className="bg-blue-500/20 p-2 rounded relative">
-                  <div className="absolute inset-0 bg-blue-500/20 blur-md rounded" />
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-400 relative z-10 drop-shadow-[0_0_5px_rgba(96,165,250,0.8)]"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+          return (
+            <motion.div key={planKey} variants={itemVariants} whileHover={{ y: -5 }}>
+              <Card className={`h-full flex flex-col justify-between backdrop-blur-md shadow-lg transition-all duration-300 relative overflow-hidden group ${
+                isCurrent 
+                  ? "bg-primary/5 border-primary/50 shadow-[0_0_20px_rgba(var(--primary),0.15)]" 
+                  : "bg-card/40 border-white/10 hover:border-white/20"
+              }`}>
+                {/* Visual indicator for current active plan */}
+                {isCurrent && (
+                  <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-[10px] font-bold tracking-wider px-3 py-1 rounded-bl-lg shadow-md uppercase">
+                    Current Active
+                  </div>
+                )}
+                
+                <div>
+                  <CardHeader>
+                    <CardTitle className="text-white text-lg">{plan.name}</CardTitle>
+                    <CardDescription className="text-gray-400">Subscription Tier</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="text-3xl font-extrabold text-white flex items-end">
+                      {plan.price}
+                      <span className="text-sm font-normal text-gray-400 ml-1 mb-1">/mo</span>
+                    </div>
+                    <ul className="space-y-2.5 pt-2">
+                      {plan.features.map((feature, i) => (
+                        <li key={i} className="flex items-start text-xs text-gray-300 group-hover:text-white transition-colors leading-relaxed">
+                          <Check className="h-3.5 w-3.5 mr-2 text-green-400 shrink-0 mt-0.5" /> 
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
                 </div>
-                <div className="flex-1">
-                  <p className="font-medium text-white">Visa ending in 4242</p>
-                  <p className="text-xs text-gray-400">Expires 12/28</p>
+
+                <div className="p-6 pt-0 mt-4">
+                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <Button 
+                      onClick={() => handleUpgrade(planKey)}
+                      disabled={isCurrent || actionLoading !== null}
+                      variant={isCurrent ? "outline" : "default"}
+                      className={`w-full text-xs font-semibold h-10 ${
+                        isCurrent 
+                          ? "border-primary/50 text-primary cursor-default hover:bg-transparent" 
+                          : planKey === "pro"
+                            ? "bg-primary hover:bg-primary/95 text-primary-foreground shadow-[0_0_15px_rgba(var(--primary),0.3)]"
+                            : "bg-white/5 border border-white/10 hover:bg-white/10 text-white"
+                      }`}
+                    >
+                      {actionLoading === planKey ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : isCurrent ? (
+                        "Active Plan"
+                      ) : isPaid ? (
+                        "Upgrade Now"
+                      ) : (
+                        "Downgrade Plan"
+                      )}
+                    </Button>
+                  </motion.div>
                 </div>
-              </motion.div>
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Button className="w-full bg-blue-600 hover:bg-blue-500 text-white shadow-[0_0_15px_rgba(37,99,235,0.4)] hover:shadow-[0_0_25px_rgba(37,99,235,0.6)] transition-all">
-                  Update Payment Method
-                </Button>
-              </motion.div>
-            </CardContent>
-          </Card>
-        </motion.div>
+              </Card>
+            </motion.div>
+          );
+        })}
       </motion.div>
     </div>
   );

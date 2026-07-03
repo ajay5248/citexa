@@ -18,20 +18,34 @@ import secrets
 async def lifespan(app: FastAPI):
     try:
         models.Base.metadata.create_all(bind=database.engine)
-        # Auto-migration: Check if analysis_data column exists in competitors table
-        from sqlalchemy import text
+        from sqlalchemy import inspect, text
         try:
+            inspector = inspect(database.engine)
+            
+            # Auto-migrate competitors table
+            comp_columns = [col['name'] for col in inspector.get_columns('competitors')]
             with database.engine.begin() as conn:
-                res = conn.execute(text("""
-                    SELECT column_name 
-                    FROM information_schema.columns 
-                    WHERE table_name = 'competitors' AND column_name = 'analysis_data'
-                """))
-                if not res.fetchone():
+                if 'analysis_data' not in comp_columns:
                     print("DATABASE AUTO-MIGRATION: Adding 'analysis_data' column to 'competitors' table.")
                     conn.execute(text("ALTER TABLE competitors ADD COLUMN analysis_data TEXT"))
+            
+            # Auto-migrate users table
+            user_columns = [col['name'] for col in inspector.get_columns('users')]
+            with database.engine.begin() as conn:
+                if 'plan' not in user_columns:
+                    print("DATABASE AUTO-MIGRATION: Adding 'plan' column to 'users' table.")
+                    conn.execute(text("ALTER TABLE users ADD COLUMN plan VARCHAR DEFAULT 'free'"))
+                if 'stripe_customer_id' not in user_columns:
+                    print("DATABASE AUTO-MIGRATION: Adding 'stripe_customer_id' column to 'users' table.")
+                    conn.execute(text("ALTER TABLE users ADD COLUMN stripe_customer_id VARCHAR"))
+                if 'stripe_subscription_id' not in user_columns:
+                    print("DATABASE AUTO-MIGRATION: Adding 'stripe_subscription_id' column to 'users' table.")
+                    conn.execute(text("ALTER TABLE users ADD COLUMN stripe_subscription_id VARCHAR"))
+                if 'subscription_status' not in user_columns:
+                    print("DATABASE AUTO-MIGRATION: Adding 'subscription_status' column to 'users' table.")
+                    conn.execute(text("ALTER TABLE users ADD COLUMN subscription_status VARCHAR"))
         except Exception as mig_err:
-            print(f"DATABASE AUTO-MIGRATION WARNING: Failed to auto-migrate 'competitors' table. Error: {mig_err}")
+            print(f"DATABASE AUTO-MIGRATION WARNING: Failed to auto-migrate. Error: {mig_err}")
     except Exception as db_err:
         print(f"DATABASE INITIALIZATION WARNING: Failed to initialize database tables on startup. Error: {db_err}")
     yield
@@ -128,13 +142,28 @@ async def auth_google(token_data: schemas.GoogleToken, db: Session = Depends(dat
 def read_users_me(current_user: schemas.User = Depends(auth.get_current_user)):
     return current_user
 
-from routers import audits, tools, websites, competitors, reports
+@app.put("/users/me", response_model=schemas.User)
+def update_user_me(user_update: schemas.UserUpdate, db: Session = Depends(database.get_db), current_user: schemas.User = Depends(auth.get_current_user)):
+    db_user = db.query(models.User).filter(models.User.id == current_user.id).first()
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    if user_update.full_name is not None:
+        db_user.full_name = user_update.full_name
+    if user_update.company is not None:
+        db_user.company = user_update.company
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+from routers import audits, tools, websites, competitors, reports, billing, admin
 
 app.include_router(audits.router)
 app.include_router(tools.router)
 app.include_router(websites.router)
 app.include_router(competitors.router)
 app.include_router(reports.router)
+app.include_router(billing.router)
+app.include_router(admin.router)
 
 @app.get("/debug-db")
 def debug_db():

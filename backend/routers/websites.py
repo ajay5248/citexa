@@ -16,6 +16,23 @@ def read_websites(skip: int = 0, limit: int = 100, db: Session = Depends(databas
 
 @router.post("/", response_model=schemas.Website)
 def create_website(website: schemas.WebsiteCreate, db: Session = Depends(database.get_db), current_user: schemas.User = Depends(auth.get_current_user)):
+    user_plan = current_user.plan or "free"
+    count = db.query(models.Website).filter(models.Website.owner_id == current_user.id).count()
+    
+    limit = 1
+    if user_plan == "starter":
+        limit = 2
+    elif user_plan == "pro":
+        limit = 10
+    elif user_plan == "enterprise":
+        limit = 99999
+        
+    if count >= limit:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail=f"Tracking limit reached. Your {user_plan.capitalize()} plan allows tracking up to {limit} website(s). Please upgrade to add more."
+        )
+        
     return crud.create_user_website(db=db, website=website, user_id=current_user.id)
 
 @router.delete("/{website_id}", status_code=status.HTTP_204_NO_CONTENT)

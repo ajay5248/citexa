@@ -2,12 +2,39 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Globe, FileSearch, Users, FileText, Settings, CreditCard, Wand2 } from "lucide-react";
+import { LayoutDashboard, Globe, FileSearch, Users, FileText, Settings, CreditCard, Wand2, Shield } from "lucide-react";
 import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
 
 export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" && (window.location.hostname.includes("localhost") || window.location.hostname.includes("127.0.0.1")) ? "/api" : "https://citexa.onrender.com");
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        const res = await fetch(`${apiUrl}/users/me`, {
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
+        if (res.ok) {
+          const user = await res.json();
+          setIsAdmin(user.role === "admin");
+        }
+      } catch (e) {
+        console.error("Error fetching user in sidebar:", e);
+      }
+    };
+
+    fetchUser();
+  }, [apiUrl]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -21,9 +48,16 @@ export function Sidebar() {
     { name: "Audits", href: "/dashboard/audits", icon: FileSearch },
     { name: "Competitors", href: "/dashboard/competitors", icon: Users },
     { name: "Reports", href: "/dashboard/reports", icon: FileText },
-    { name: "Settings", href: "/dashboard/settings", icon: Settings },
-    { name: "Billing", href: "/dashboard/billing", icon: CreditCard },
   ];
+
+  if (isAdmin) {
+    navItems.push({ name: "Admin", href: "/dashboard/admin", icon: Shield });
+  }
+
+  navItems.push(
+    { name: "Settings", href: "/dashboard/settings", icon: Settings },
+    { name: "Billing", href: "/dashboard/billing", icon: CreditCard }
+  );
 
   return (
     <div className="hidden border-r border-border/10 bg-background/95 backdrop-blur-xl md:block w-64 h-screen sticky top-0 shadow-[4px_0_24px_rgba(0,0,0,0.5)]">

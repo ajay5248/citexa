@@ -92,6 +92,28 @@ def create_audit(audit: schemas.AuditCreate, background_tasks: BackgroundTasks, 
     if not website:
         raise HTTPException(status_code=404, detail="Website not found or not owned by current user")
         
+    user_plan = current_user.plan or "free"
+    
+    # Check total audits run by this user
+    user_websites = db.query(models.Website).filter(models.Website.owner_id == current_user.id).all()
+    user_website_ids = [w.id for w in user_websites]
+    
+    total_audits = 0
+    if user_website_ids:
+        total_audits = db.query(models.Audit).filter(models.Audit.website_id.in_(user_website_ids)).count()
+        
+    audit_limit = 3
+    if user_plan == "starter":
+        audit_limit = 10
+    elif user_plan in ["pro", "enterprise"]:
+        audit_limit = 99999
+        
+    if total_audits >= audit_limit:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Audit limit reached. Your {user_plan.capitalize()} plan allows up to {audit_limit} audits. Please upgrade your plan."
+        )
+        
     db_audit = models.Audit(website_id=audit.website_id, status="pending")
     db.add(db_audit)
     db.commit()

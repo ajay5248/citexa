@@ -98,6 +98,13 @@ def analyze_competitor_bg(competitor_id: int, my_url: str, comp_url: str):
 
 @router.post("/", response_model=CompetitorResponse)
 def add_competitor(comp: schemas.CompetitorCreate, background_tasks: BackgroundTasks, db: Session = Depends(database.get_db), current_user: schemas.User = Depends(auth.get_current_user)):
+    user_plan = current_user.plan or "free"
+    if user_plan == "free":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Competitor tracking is not available on the Free plan. Please upgrade to a paid plan."
+        )
+
     # Verify ownership
     website = db.query(models.Website).filter(models.Website.id == comp.website_id, models.Website.owner_id == current_user.id).first()
     if not website:

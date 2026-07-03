@@ -12,6 +12,10 @@ class User(Base):
     full_name = Column(String)
     company = Column(String, nullable=True)
     role = Column(String, default="user") # 'user' or 'admin'
+    plan = Column(String, default="free")
+    stripe_customer_id = Column(String, nullable=True)
+    stripe_subscription_id = Column(String, nullable=True)
+    subscription_status = Column(String, nullable=True)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 

@@ -14,6 +14,10 @@ class User(UserBase):
     id: int
     is_active: bool
     role: str
+    plan: str
+    stripe_customer_id: Optional[str] = None
+    stripe_subscription_id: Optional[str] = None
+    subscription_status: Optional[str] = None
     created_at: datetime
 
     class Config:
@@ -102,4 +106,9 @@ class Report(ReportBase):
 
     class Config:
         from_attributes = True
+
+class UserUpdate(BaseModel):
+    full_name: Optional[str] = None
+    company: Optional[str] = None
+
 

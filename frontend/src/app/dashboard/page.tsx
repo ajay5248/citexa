@@ -1,8 +1,8 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Search, Code, MessageSquare, BarChart3, TrendingUp, Sparkles, Zap, Activity } from "lucide-react";
-import { motion } from "framer-motion";
+import { Search, Code, MessageSquare, BarChart3, TrendingUp, Sparkles, Zap, Activity, Loader2, ArrowRight } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -27,6 +27,7 @@ export default function Dashboard() {
   const [websites, setWebsites] = useState<Website[]>([]);
   const [audits, setAudits] = useState<Audit[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [hoveredPoint, setHoveredPoint] = useState<{ index: number; x: number; y: number; score: number; date: string; audit: Audit } | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -60,7 +61,7 @@ export default function Dashboard() {
 
   let latestAudit = null;
   if (audits && audits.length > 0) {
-      latestAudit = audits.find(a => a.status === 'completed') || audits[0];
+    latestAudit = audits.find(a => a.status === 'completed') || audits[0];
   }
 
   const aiScore = latestAudit ? Math.round(latestAudit.overall_score) : 0;
@@ -74,6 +75,48 @@ export default function Dashboard() {
     { name: "Competitor Rank", value: "#3", change: "Est.", icon: BarChart3, color: "text-emerald-400" },
   ];
 
+  // Prepare chart data (chronological order)
+  const chartAudits = audits
+    .filter(a => a.status === "completed")
+    .slice(0, 10)
+    .reverse();
+
+  // Custom SVG Area Chart calculation
+  const width = 500;
+  const height = 200;
+  const paddingX = 40;
+  const paddingY = 30;
+
+  let points: { x: number; y: number; score: number; date: string; audit: Audit }[] = [];
+  let pathD = "";
+  let areaD = "";
+
+  if (chartAudits.length > 1) {
+    points = chartAudits.map((audit, i) => {
+      const x = paddingX + (i / (chartAudits.length - 1)) * (width - paddingX * 2);
+      // y ranges from height-paddingY (for score 0) to paddingY (for score 100)
+      const y = height - paddingY - (audit.overall_score / 100) * (height - paddingY * 2);
+      const date = new Date(audit.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+      return { x, y, score: Math.round(audit.overall_score), date, audit };
+    });
+
+    pathD = `M ${points[0].x} ${points[0].y} ` + points.slice(1).map(p => `L ${p.x} ${p.y}`).join(" ");
+    areaD = `${pathD} L ${points[points.length - 1].x} ${height - paddingY} L ${points[0].x} ${height - paddingY} Z`;
+  } else if (chartAudits.length === 1) {
+    // Singular point fallback: draw straight line
+    const x1 = paddingX;
+    const x2 = width - paddingX;
+    const y = height - paddingY - (chartAudits[0].overall_score / 100) * (height - paddingY * 2);
+    const date = new Date(chartAudits[0].created_at).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+    
+    points = [
+      { x: x1, y, score: Math.round(chartAudits[0].overall_score), date, audit: chartAudits[0] },
+      { x: x2, y, score: Math.round(chartAudits[0].overall_score), date, audit: chartAudits[0] }
+    ];
+    pathD = `M ${x1} ${y} L ${x2} ${y}`;
+    areaD = `M ${x1} ${y} L ${x2} ${y} L ${x2} ${height - paddingY} L ${x1} ${height - paddingY} Z`;
+  }
+
   const containerVariants = {
     hidden: { opacity: 0 },
     show: {
@@ -83,17 +126,17 @@ export default function Dashboard() {
   };
 
   const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  show: { 
-    opacity: 1, 
-    y: 0, 
-    transition: { 
-      type: "spring" as const, 
-      stiffness: 100, 
-      damping: 15 
-    } 
-  }
-};
+    hidden: { opacity: 0, y: 20 },
+    show: { 
+      opacity: 1, 
+      y: 0, 
+      transition: { 
+        type: "spring" as const, 
+        stiffness: 100, 
+        damping: 15 
+      } 
+    }
+  };
 
   return (
     <div className="space-y-8 relative">
@@ -150,7 +193,7 @@ export default function Dashboard() {
       >
         {/* Main Chart Area - Takes up 8 columns */}
         <Card className="col-span-12 lg:col-span-8 bg-card/40 backdrop-blur-xl border-border/20 hover:border-border/40 transition-all duration-300 shadow-lg relative overflow-hidden group">
-          <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-blue-500/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Zap className="w-5 h-5 text-blue-400" />
@@ -159,16 +202,148 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent className="pl-2 flex justify-center items-center h-[350px] relative">
             {/* Animated Grid Lines for "Chart" vibe */}
-            <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px]" />
-            <motion.div 
-              animate={{ opacity: [0.5, 1, 0.5], scale: [0.98, 1, 0.98] }}
-              transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-              className="flex flex-col items-center relative z-10"
-            >
-              <div className="w-24 h-24 rounded-full bg-primary/20 blur-xl absolute" />
-              <TrendingUp className="h-12 w-12 mb-4 text-primary relative z-10 drop-shadow-[0_0_15px_rgba(var(--primary),0.8)]" />
-              <p className="text-gray-400 font-mono text-sm relative z-10">Initializing Real-time Data Stream...</p>
-            </motion.div>
+            <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:40px_40px]" />
+            
+            {isLoading ? (
+              <motion.div 
+                animate={{ opacity: [0.5, 1, 0.5], scale: [0.98, 1, 0.98] }}
+                transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+                className="flex flex-col items-center relative z-10"
+              >
+                <div className="w-24 h-24 rounded-full bg-primary/20 blur-xl absolute" />
+                <TrendingUp className="h-12 w-12 mb-4 text-primary relative z-10 drop-shadow-[0_0_15px_rgba(var(--primary),0.8)]" />
+                <p className="text-gray-400 font-mono text-sm relative z-10">Initializing Real-time Data Stream...</p>
+              </motion.div>
+            ) : chartAudits.length > 0 ? (
+              <div className="w-full h-full flex flex-col justify-between p-4 relative z-10">
+                {/* SVG Area Chart */}
+                <div className="flex-1 w-full relative">
+                  <svg className="w-full h-full" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none">
+                    <defs>
+                      <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#ec4899" stopOpacity="0.4" />
+                        <stop offset="100%" stopColor="#ec4899" stopOpacity="0.0" />
+                      </linearGradient>
+                      <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="4" result="blur" />
+                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                      </filter>
+                    </defs>
+
+                    {/* Horizontal Grid lines */}
+                    <line x1={paddingX} y1={paddingY} x2={width - paddingX} y2={paddingY} stroke="rgba(255,255,255,0.05)" strokeDasharray="3 3" />
+                    <line x1={paddingX} y1={(height - paddingY * 2) / 2 + paddingY} x2={width - paddingX} y2={(height - paddingY * 2) / 2 + paddingY} stroke="rgba(255,255,255,0.05)" strokeDasharray="3 3" />
+                    <line x1={paddingX} y1={height - paddingY} x2={width - paddingX} y2={height - paddingY} stroke="rgba(255,255,255,0.1)" />
+
+                    {/* Area path */}
+                    <motion.path
+                      initial={{ pathLength: 0, opacity: 0 }}
+                      animate={{ pathLength: 1, opacity: 1 }}
+                      transition={{ duration: 1, ease: "easeOut" }}
+                      d={areaD}
+                      fill="url(#chartGrad)"
+                    />
+
+                    {/* Core Line path */}
+                    <motion.path
+                      initial={{ pathLength: 0 }}
+                      animate={{ pathLength: 1 }}
+                      transition={{ duration: 1.2, ease: "easeOut" }}
+                      d={pathD}
+                      fill="none"
+                      stroke="#ec4899"
+                      strokeWidth="3.5"
+                      filter="url(#glow)"
+                    />
+
+                    {/* Interaction Points */}
+                    {points.map((point, index) => (
+                      <g key={index}>
+                        <motion.circle
+                          cx={point.x}
+                          cy={point.y}
+                          r="5"
+                          fill="#ec4899"
+                          stroke="#ffffff"
+                          strokeWidth="2"
+                          whileHover={{ r: 8 }}
+                          onMouseEnter={(e) => {
+                            setHoveredPoint({
+                              index,
+                              x: point.x,
+                              y: point.y,
+                              score: point.score,
+                              date: point.date,
+                              audit: point.audit
+                            });
+                          }}
+                          className="cursor-pointer"
+                        />
+                      </g>
+                    ))}
+                  </svg>
+
+                  {/* Tooltip Overlay */}
+                  <AnimatePresence>
+                    {hoveredPoint && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.9, y: 10 }}
+                        style={{
+                          position: "absolute",
+                          left: `${(hoveredPoint.x / width) * 100}%`,
+                          top: `${(hoveredPoint.y / height) * 100 - 35}%`,
+                          transform: "translate(-50%, -100%)",
+                        }}
+                        className="z-30 bg-black/90 backdrop-blur-md border border-white/10 px-3 py-2 rounded-lg text-xs shadow-xl text-left pointer-events-none min-w-[120px]"
+                      >
+                        <p className="font-bold text-white mb-1 flex items-center justify-between">
+                          <span>Overall:</span>
+                          <span className="text-primary font-mono">{hoveredPoint.score}/100</span>
+                        </p>
+                        <p className="text-gray-400 font-mono text-[10px] mb-1">{hoveredPoint.date}</p>
+                        <div className="border-t border-white/10 pt-1 mt-1 space-y-0.5 text-gray-400">
+                          <p className="flex justify-between">
+                            <span>Schema:</span>
+                            <span className="text-blue-400 font-mono">{Math.round(hoveredPoint.audit.schema_score)}%</span>
+                          </p>
+                          <p className="flex justify-between">
+                            <span>FAQ Content:</span>
+                            <span className="text-purple-400 font-mono">{Math.round(hoveredPoint.audit.content_score)}%</span>
+                          </p>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+                {/* X-axis labels */}
+                <div className="flex justify-between text-[10px] font-mono text-gray-500 px-6">
+                  {points.length > 0 ? (
+                    <>
+                      <span>{points[0].date}</span>
+                      {points.length > 2 && <span>{points[Math.floor(points.length / 2)].date}</span>}
+                      <span>{points[points.length - 1].date}</span>
+                    </>
+                  ) : (
+                    <span>No data points</span>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center p-6 text-center gap-4">
+                <p className="text-gray-400 text-sm">No completed audits found to render trajectory.</p>
+                <Link href="/dashboard/websites">
+                  <motion.button 
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-xs transition-colors"
+                  >
+                    Add Website to Audit <ArrowRight className="w-3.5 h-3.5" />
+                  </motion.button>
+                </Link>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -209,6 +384,7 @@ export default function Dashboard() {
                   <motion.div 
                     key={audit.id || i} 
                     whileHover={{ scale: 1.02, x: 5 }}
+                    onClick={() => router.push(`/dashboard/audits/${audit.id}`)}
                     className="flex items-center bg-white/5 hover:bg-white/10 p-3 rounded-lg transition-all cursor-pointer border border-transparent hover:border-white/10 group"
                   >
                     <div className={`w-2 h-2 rounded-full bg-${audit.status}-500 mr-3 shadow-[0_0_8px_rgba(var(--${audit.status}-500),0.8)]`} />
@@ -223,7 +399,7 @@ export default function Dashboard() {
                 );
               })()}
             </div>
-            <Link href="/audit">
+            <Link href="/dashboard/websites">
               <motion.button 
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
