@@ -229,17 +229,39 @@ def generate_schema(request: SchemaRequest, db: Session = Depends(database.get_d
         wiki_summary = "No direct Wikipedia entry found for entity."
         
     if not os.getenv("LLM_API_KEY"):
-        # Dynamic Wikipedia-powered Schema fallback
-        same_as_line = f',\n  "sameAs": [\n    "{wiki_url}"\n  ]' if wiki_url else ""
+        # Rich Dynamic Schema fallback generator
+        same_as_links = [
+            f"https://www.facebook.com/{request.name.lower().replace(' ', '')}",
+            f"https://twitter.com/{request.name.lower().replace(' ', '')}",
+            f"https://www.linkedin.com/company/{request.name.lower().replace(' ', '')}"
+        ]
+        if wiki_url:
+            same_as_links.insert(0, wiki_url)
+            
+        mock_schema_data = {
+            "@context": "https://schema.org",
+            "@type": request.business_type if request.business_type else "Organization",
+            "name": request.name,
+            "url": request.url,
+            "logo": f"{request.url.rstrip('/')}/logo.png",
+            "description": request.description,
+            "sameAs": same_as_links,
+            "contactPoint": {
+                "@type": "ContactPoint",
+                "telephone": "+1-800-555-0199",
+                "contactType": "customer support",
+                "areaServed": "US",
+                "availableLanguage": "English"
+            },
+            "potentialAction": {
+                "@type": "SearchAction",
+                "target": f"{request.url.rstrip('/')}/search?q={{search_term_string}}",
+                "query-input": "required name=search_term_string"
+            }
+        }
         
         mock_schema = f"""<script type="application/ld+json">
-{{
-  "@context": "https://schema.org",
-  "@type": "{request.business_type}",
-  "name": "{request.name}",
-  "url": "{request.url}",
-  "description": "{request.description}"{same_as_line}
-}}
+{json.dumps(mock_schema_data, indent=2)}
 </script>"""
         return SchemaResponse(json_ld=mock_schema)
 
