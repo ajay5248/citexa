@@ -220,27 +220,16 @@ export default function ToolsPage() {
                       onChange={(e) => setCount(Number(e.target.value))}
                       className="w-full h-11 px-3 rounded-md bg-black/20 border border-white/10 text-white focus:border-primary/50 focus:outline-none transition-colors text-sm"
                     >
-                      <option value={5} className="bg-neutral-900">5 FAQs (All plans)</option>
-                      <option value={10} className="bg-neutral-900" disabled={userPlan === 'free'}>10 FAQs (Starter plan+)</option>
-                      <option value={20} className="bg-neutral-900" disabled={userPlan === 'free' || userPlan === 'starter'}>20 FAQs (Pro plan+)</option>
-                      <option value={50} className="bg-neutral-900" disabled={userPlan === 'free' || userPlan === 'starter' || userPlan === 'pro'}>50 FAQs (Enterprise plan+)</option>
-                      <option value={100} className="bg-neutral-900" disabled={userPlan === 'free' || userPlan === 'starter' || userPlan === 'pro'}>100 FAQs (Enterprise plan+)</option>
+                      <option value={5} className="bg-neutral-900">5 FAQs (Free)</option>
+                      <option value={10} className="bg-neutral-900">10 FAQs (Free)</option>
+                      <option value={50} className="bg-neutral-900">50 FAQs (Free)</option>
+                      <option value={100} className="bg-neutral-900">100 FAQs (Free)</option>
+                      <option value={500} className="bg-neutral-900">500 FAQs (Free)</option>
+                      <option value={1000} className="bg-neutral-900">1000+ FAQs (Free)</option>
                     </select>
-                    {userPlan === 'free' && (
-                      <p className="text-[10px] text-primary flex items-center gap-1 mt-1 leading-normal">
-                        Note: Free tier is capped at 5 FAQs. Upgrade subscription to unlock up to 100 questions.
-                      </p>
-                    )}
-                    {userPlan === 'starter' && (
-                      <p className="text-[10px] text-primary flex items-center gap-1 mt-1 leading-normal">
-                        Note: Starter plan is capped at 10 FAQs. Upgrade subscription to unlock up to 100 questions.
-                      </p>
-                    )}
-                    {userPlan === 'pro' && (
-                      <p className="text-[10px] text-primary flex items-center gap-1 mt-1 leading-normal">
-                        Note: Pro plan is capped at 20 FAQs. Upgrade subscription to unlock up to 100 questions.
-                      </p>
-                    )}
+                    <p className="text-[10px] text-primary flex items-center gap-1 mt-1 leading-normal">
+                      🎉 Multi-batch FAQ generation is fully unlocked! Generate up to 1000+ FAQs for free.
+                    </p>
                   </div>
                   <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                     <Button 

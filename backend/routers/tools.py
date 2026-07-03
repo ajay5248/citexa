@@ -32,20 +32,9 @@ def generate_faq(request: FAQRequest, db: Session = Depends(database.get_db), cu
         raise HTTPException(status_code=400, detail="Must provide either url or topic")
     
     query = request.url if request.url else request.topic
-    user_plan = current_user.plan or "free"
     requested_count = request.count or 5
-
-    # Enforce plan-based count limits
-    limit = 5
-    if user_plan == "starter":
-        limit = 10
-    elif user_plan == "pro":
-        limit = 30
-    elif user_plan == "enterprise":
-        limit = 100
-
-    count = min(requested_count, limit)
-    count = min(count, 100) # Safeguard threshold
+    # Fully free and unlocked up to 1000 FAQs for all users
+    count = min(requested_count, 1000)
 
     # 1. Scraping / Crawling site content if a URL is provided
     scraped_content = ""
@@ -141,7 +130,7 @@ def generate_faq(request: FAQRequest, db: Session = Depends(database.get_db), cu
         return FAQResponse(faqs=mock_faqs, json_ld=mock_json_ld.strip())
 
     all_faqs = []
-    batch_size = 10
+    batch_size = 50
     total_batches = (count + batch_size - 1) // batch_size
 
     try:
