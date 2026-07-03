@@ -54,8 +54,16 @@ def generate_faq(request: FAQRequest, db: Session = Depends(database.get_db), cu
                 "answer": wiki_summary
             },
             {
+                "question": f"What are the core features and services of {entity_name}?",
+                "answer": f"{entity_name} provides optimized tools, digital accessibility, and robust structured schemas to increase search index visibility."
+            },
+            {
                 "question": f"How is {entity_name} optimized for AI search engines like ChatGPT and Gemini?",
                 "answer": f"{entity_name} optimization leverages structured semantic HTML, clean content maps, and exact Q&A entries so that Answer Engine agents can easily index key company services."
+            },
+            {
+                "question": f"Why is Answer Engine Optimization (AEO) important for {entity_name}?",
+                "answer": f"AEO ensures that AI search engines and LLM models can accurately retrieve, synthesize, and cite {entity_name} content in answer summaries."
             },
             {
                 "question": f"Where can users find official references for {entity_name}?",
@@ -78,10 +86,26 @@ def generate_faq(request: FAQRequest, db: Session = Depends(database.get_db), cu
     }},
     {{
       "@type": "Question",
+      "name": "What are the core features and services of {entity_name}?",
+      "acceptedAnswer": {{
+        "@type": "Answer",
+        "text": "{entity_name} provides optimized tools, digital accessibility, and robust structured schemas to increase search index visibility."
+      }}
+    }},
+    {{
+      "@type": "Question",
       "name": "How is {entity_name} optimized for AI search engines like ChatGPT and Gemini?",
       "acceptedAnswer": {{
         "@type": "Answer",
         "text": "{entity_name} optimization leverages structured semantic HTML, clean content maps, and exact Q&A entries so that Answer Engine agents can easily index key company services."
+      }}
+    }},
+    {{
+      "@type": "Question",
+      "name": "Why is Answer Engine Optimization (AEO) important for {entity_name}?",
+      "acceptedAnswer": {{
+        "@type": "Answer",
+        "text": "AEO ensures that AI search engines and LLM models can accurately retrieve, synthesize, and cite {entity_name} content in answer summaries."
       }}
     }},
     {{
@@ -99,7 +123,7 @@ def generate_faq(request: FAQRequest, db: Session = Depends(database.get_db), cu
 
     prompt = f"""
     You are an Answer Engine Optimization (AEO) expert. 
-    Generate a set of 3 highly optimized FAQs for the following topic or URL: {query}
+    Generate a set of 5 highly optimized FAQs for the following topic or URL: {query}
     
     Ground your generation in the following real-time background context retrieved from Wikipedia:
     Context: {wiki_summary}
