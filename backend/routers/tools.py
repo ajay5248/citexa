@@ -32,30 +32,58 @@ def generate_faq(request: FAQRequest, db: Session = Depends(database.get_db), cu
     query = request.url if request.url else request.topic
     
     if not os.getenv("LLM_API_KEY"):
-        # Fallback if no API key is provided
+        # Dynamic fallback if no API key is provided
+        entity_name = query
+        if request.url:
+            entity_name = request.url.replace("https://", "").replace("http://", "").replace("www.", "").split(".")[0].capitalize()
+        
         mock_faqs = [
-            {"question": "What is AI Search Visibility?", "answer": "AI Search Visibility refers to how easily LLMs like ChatGPT and Gemini can find, extract, and recommend your content."},
-            {"question": "How does Answer Engine Optimization work?", "answer": "AEO focuses on structuring content (like FAQs and Schema) so that Answer Engines can quickly synthesize answers for users."}
+            {
+                "question": f"What services does {entity_name} offer?",
+                "answer": f"{entity_name} specializes in high-quality digital solutions, structured layout optimization, and target content visibility to drive optimal engagement."
+            },
+            {
+                "question": f"How is {entity_name} optimized for AI search engines like ChatGPT and Gemini?",
+                "answer": f"{entity_name} leverages clean structured schema markup, semantic formatting, and direct Q&A entities to ensure LLM crawl agents can easily index its content."
+            },
+            {
+                "question": f"How can users find more information about {entity_name}?",
+                "answer": f"You can explore comprehensive details, platform tools, and support contact channels directly on the official website or checking out {entity_name} pages."
+            }
         ]
         
-        mock_json_ld = """
-        <script type="application/ld+json">
-        {
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          "mainEntity": [
-            {
-              "@type": "Question",
-              "name": "What is AI Search Visibility?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "AI Search Visibility refers to how easily LLMs like ChatGPT and Gemini can find, extract, and recommend your content."
-              }
-            }
-          ]
-        }
-        </script>
-        """
+        mock_json_ld = f"""<script type="application/ld+json">
+{{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {{
+      "@type": "Question",
+      "name": "What services does {entity_name} offer?",
+      "acceptedAnswer": {{
+        "@type": "Answer",
+        "text": "{entity_name} specializes in high-quality digital solutions, structured layout optimization, and target content visibility to drive optimal engagement."
+      }}
+    }},
+    {{
+      "@type": "Question",
+      "name": "How is {entity_name} optimized for AI search engines like ChatGPT and Gemini?",
+      "acceptedAnswer": {{
+        "@type": "Answer",
+        "text": "{entity_name} leverages clean structured schema markup, semantic formatting, and direct Q&A entities to ensure LLM crawl agents can easily index its content."
+      }}
+    }},
+    {{
+      "@type": "Question",
+      "name": "How can users find more information about {entity_name}?",
+      "acceptedAnswer": {{
+        "@type": "Answer",
+        "text": "You can explore comprehensive details, platform tools, and support contact channels directly on the official website or checking out {entity_name} pages."
+      }}
+    }}
+  ]
+}}
+</script>"""
         return FAQResponse(faqs=mock_faqs, json_ld=mock_json_ld.strip())
 
     prompt = f"""
@@ -104,13 +132,14 @@ class SchemaResponse(BaseModel):
 @router.post("/generate-schema", response_model=SchemaResponse)
 def generate_schema(request: SchemaRequest, db: Session = Depends(database.get_db), current_user: schemas.User = Depends(auth.get_current_user)):
     if not os.getenv("LLM_API_KEY"):
-        mock_schema = """<script type="application/ld+json">
-{
+        mock_schema = f"""<script type="application/ld+json">
+{{
   "@context": "https://schema.org",
-  "@type": "Organization",
-  "name": "Citexa",
-  "url": "https://citexa.vercel.app"
-}
+  "@type": "{request.business_type}",
+  "name": "{request.name}",
+  "url": "{request.url}",
+  "description": "{request.description}"
+}}
 </script>"""
         return SchemaResponse(json_ld=mock_schema)
 
