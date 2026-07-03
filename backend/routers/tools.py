@@ -20,6 +20,7 @@ client = OpenAI(api_key=os.getenv("LLM_API_KEY") or "dummy_key")
 class FAQRequest(BaseModel):
     url: Optional[str] = None
     topic: Optional[str] = None
+    count: Optional[int] = 5
 
 class FAQResponse(BaseModel):
     faqs: List[dict]
@@ -31,8 +32,43 @@ def generate_faq(request: FAQRequest, db: Session = Depends(database.get_db), cu
         raise HTTPException(status_code=400, detail="Must provide either url or topic")
     
     query = request.url if request.url else request.topic
-    
-    # 1. Fetch Wikipedia context first (for RAG)
+    user_plan = current_user.plan or "free"
+    requested_count = request.count or 5
+
+    # Enforce plan-based count limits
+    limit = 5
+    if user_plan == "starter":
+        limit = 10
+    elif user_plan == "pro":
+        limit = 30
+    elif user_plan == "enterprise":
+        limit = 100
+
+    count = min(requested_count, limit)
+    count = min(count, 100) # Safeguard threshold
+
+    # 1. Scraping / Crawling site content if a URL is provided
+    scraped_content = ""
+    if request.url:
+        import httpx
+        from bs4 import BeautifulSoup
+        try:
+            with httpx.Client(timeout=8.0, follow_redirects=True) as client:
+                headers = {"User-Agent": "CitexaBot/1.0 (Answer Engine Optimization Crawler)"}
+                response = client.get(request.url, headers=headers)
+                if response.status_code == 200:
+                    soup = BeautifulSoup(response.text, 'html.parser')
+                    for element in soup(["script", "style", "nav", "footer", "header"]):
+                        element.extract()
+                    text = soup.get_text(separator=' ')
+                    lines = (line.strip() for line in text.splitlines())
+                    chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
+                    scraped_content = '\n'.join(chunk for chunk in chunks if chunk)[:3000]
+                    print(f"CRAWLER SUCCESS: Scraped {len(scraped_content)} chars from {request.url}")
+        except Exception as e:
+            print(f"CRAWLER WARNING: Failed to scrape {request.url}: {e}")
+
+    # 2. Fetch Wikipedia context fallback (for RAG index)
     entity_name = query
     if "http" in query or "." in query:
         entity_name = query.replace("https://", "").replace("http://", "").replace("www.", "").split(".")[0].capitalize()
@@ -43,120 +79,141 @@ def generate_faq(request: FAQRequest, db: Session = Depends(database.get_db), cu
         wiki_summary = wikipedia.summary(entity_name, sentences=2)
         wiki_url = wikipedia.page(entity_name).url
     except Exception:
-        wiki_summary = f"No direct Wikipedia entry found for {entity_name}. Grounding details in general web optimization patterns."
+        wiki_summary = f"No direct Wikipedia entry found for {entity_name}."
         wiki_url = None
 
+    # Merge grounding context (Prioritize actual website crawl content)
+    if scraped_content:
+        grounding_context = f"Scraped Website Content from {request.url}:\n{scraped_content}"
+    else:
+        grounding_context = f"Wikipedia Grounding Summary:\n{wiki_summary}\nWikipedia URL: {wiki_url}"
+
     if not os.getenv("LLM_API_KEY"):
-        # Dynamic Wikipedia-powered fallback if no API key is provided
-        mock_faqs = [
-            {
-                "question": f"What is {entity_name}?",
-                "answer": wiki_summary
-            },
-            {
-                "question": f"What are the core features and services of {entity_name}?",
-                "answer": f"{entity_name} provides optimized tools, digital accessibility, and robust structured schemas to increase search index visibility."
-            },
-            {
-                "question": f"How is {entity_name} optimized for AI search engines like ChatGPT and Gemini?",
-                "answer": f"{entity_name} optimization leverages structured semantic HTML, clean content maps, and exact Q&A entries so that Answer Engine agents can easily index key company services."
-            },
-            {
-                "question": f"Why is Answer Engine Optimization (AEO) important for {entity_name}?",
-                "answer": f"AEO ensures that AI search engines and LLM models can accurately retrieve, synthesize, and cite {entity_name} content in answer summaries."
-            },
-            {
-                "question": f"Where can users find official references for {entity_name}?",
-                "answer": f"You can explore details on the official site {request.url or ''} or read public references at {wiki_url or 'Wikipedia'}."
-            }
+        # Dynamic RAG-powered fallback if no API key is provided
+        mock_faqs = []
+        base_templates = [
+            ("What is {entity_name}?", wiki_summary),
+            ("What are the core features and services of {entity_name}?", "{entity_name} provides optimized tools, digital accessibility, and robust structured schemas to increase search index visibility."),
+            ("How is {entity_name} optimized for AI search engines like ChatGPT and Gemini?", "{entity_name} optimization leverages structured semantic HTML, clean content maps, and exact Q&A entries so that Answer Engine agents can easily index key company services."),
+            ("Why is Answer Engine Optimization (AEO) important for {entity_name}?", "AEO ensures that AI search engines and LLM models can accurately retrieve, synthesize, and cite {entity_name} content in answer summaries."),
+            ("Where can users find official references for {entity_name}?", "You can explore details on the official site {url} or read public references at {wiki_url}.")
         ]
+
+        if scraped_content:
+            import re
+            sentences = [s.strip() for s in re.split(r'\. |\n', scraped_content) if len(s.strip()) > 35]
+            if len(sentences) >= 3:
+                base_templates = [
+                    (f"What does the website of {entity_name} focus on?", f"According to site content: {sentences[0]}."),
+                    (f"What key information is highlighted on {entity_name}?", f"The page details: {sentences[1]}."),
+                    (f"How is {entity_name} optimized for search engines?", f"{entity_name} structures its content ({sentences[2][:100]}...) with clean metadata schemas."),
+                    (f"Why is AEO important for {entity_name}?", f"AEO allows generative search engines to directly extract details such as: {sentences[0][:150]}..."),
+                    (f"Where can users find references for {entity_name}?", f"Check out the official website {request.url} or community guides.")
+                ]
         
+        for i in range(count):
+            t_idx = i % len(base_templates)
+            q, a = base_templates[t_idx]
+            suffix = f" (Ref #{i // len(base_templates) + 1})" if i >= len(base_templates) else ""
+            mock_faqs.append({
+                "question": q.format(entity_name=entity_name) + suffix,
+                "answer": a.format(entity_name=entity_name, url=request.url or "domain", wiki_url=wiki_url or "Wikipedia")
+            })
+
+        main_entities = []
+        for faq in mock_faqs:
+            main_entities.append({
+                "@type": "Question",
+                "name": faq["question"],
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": faq["answer"]
+                }
+            })
+        faq_schema = {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": main_entities
+        }
         mock_json_ld = f"""<script type="application/ld+json">
-{{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": [
-    {{
-      "@type": "Question",
-      "name": "What is {entity_name}?",
-      "acceptedAnswer": {{
-        "@type": "Answer",
-        "text": "{wiki_summary}"
-      }}
-    }},
-    {{
-      "@type": "Question",
-      "name": "What are the core features and services of {entity_name}?",
-      "acceptedAnswer": {{
-        "@type": "Answer",
-        "text": "{entity_name} provides optimized tools, digital accessibility, and robust structured schemas to increase search index visibility."
-      }}
-    }},
-    {{
-      "@type": "Question",
-      "name": "How is {entity_name} optimized for AI search engines like ChatGPT and Gemini?",
-      "acceptedAnswer": {{
-        "@type": "Answer",
-        "text": "{entity_name} optimization leverages structured semantic HTML, clean content maps, and exact Q&A entries so that Answer Engine agents can easily index key company services."
-      }}
-    }},
-    {{
-      "@type": "Question",
-      "name": "Why is Answer Engine Optimization (AEO) important for {entity_name}?",
-      "acceptedAnswer": {{
-        "@type": "Answer",
-        "text": "AEO ensures that AI search engines and LLM models can accurately retrieve, synthesize, and cite {entity_name} content in answer summaries."
-      }}
-    }},
-    {{
-      "@type": "Question",
-      "name": "Where can users find official references for {entity_name}?",
-      "acceptedAnswer": {{
-        "@type": "Answer",
-        "text": "You can explore details on the official site {request.url or ''} or read public references at {wiki_url or 'Wikipedia'}."
-      }}
-    }}
-  ]
-}}
+{json.dumps(faq_schema, indent=2)}
 </script>"""
         return FAQResponse(faqs=mock_faqs, json_ld=mock_json_ld.strip())
 
-    prompt = f"""
-    You are an Answer Engine Optimization (AEO) expert. 
-    Generate a set of 5 highly optimized FAQs for the following topic or URL: {query}
-    
-    Ground your generation in the following real-time background context retrieved from Wikipedia:
-    Context: {wiki_summary}
-    Wikipedia URL: {wiki_url}
-    
-    If a valid Wikipedia URL is present, list it as a reference in your answers if appropriate.
-    
-    Provide a JSON response with the following keys EXACTLY:
-    "faqs": A list of objects, each containing "question" and "answer" strings.
-    "json_ld": A valid JSON-LD string representing the FAQPage schema markup. Include the <script type="application/ld+json"> tags.
-    """
-    
+    all_faqs = []
+    batch_size = 10
+    total_batches = (count + batch_size - 1) // batch_size
+
     try:
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[{"role": "user", "content": prompt}],
-            response_format={ "type": "json_object" }
-        )
-        response_json = json.loads(response.choices[0].message.content)
-        
+        for b in range(total_batches):
+            current_batch_count = min(batch_size, count - len(all_faqs))
+            if current_batch_count <= 0:
+                break
+                
+            existing_questions = [f["question"] for f in all_faqs]
+            existing_questions_str = ", ".join(existing_questions) if existing_questions else "None"
+            
+            prompt = f"""
+            You are an Answer Engine Optimization (AEO) expert.
+            Generate a set of {current_batch_count} highly optimized FAQ questions and answers for: {query}
+            
+            Ground your generation in the following real-time background context (scraped from the website or retrieved from Wikipedia):
+            Context: {grounding_context}
+            
+            CRITICAL: Do NOT duplicate or repeat any of these existing questions:
+            [{existing_questions_str}]
+            
+            Provide a JSON response with the EXACT key "faqs" containing a list of objects, each with "question" and "answer" strings.
+            """
+            
+            response = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{"role": "user", "content": prompt}],
+                response_format={ "type": "json_object" }
+            )
+            response_json = json.loads(response.choices[0].message.content)
+            batch_faqs = response_json.get("faqs", [])
+            for faq in batch_faqs:
+                if faq.get("question") and faq.get("answer"):
+                    if faq["question"] not in [f["question"] for f in all_faqs]:
+                        all_faqs.append(faq)
+            
+            if not batch_faqs:
+                break
+
         # Save usage to database
         db_usage = models.ToolUsage(
             owner_id=current_user.id,
             tool_name="faq_generator",
             target_url=request.url,
-            output_data=json.dumps(response_json)
+            output_data=json.dumps(all_faqs)
         )
         db.add(db_usage)
         db.commit()
-        
+
+        # Build schema script programmatically
+        main_entities = []
+        for faq in all_faqs:
+            main_entities.append({
+                "@type": "Question",
+                "name": faq["question"],
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": faq["answer"]
+                }
+            })
+        faq_schema = {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": main_entities
+        }
+        json_ld_string = f"""<script type="application/ld+json">
+{json.dumps(faq_schema, indent=2)}
+</script>"""
+
         return FAQResponse(
-            faqs=response_json.get("faqs", []),
-            json_ld=response_json.get("json_ld", "")
+            faqs=all_faqs,
+            json_ld=json_ld_string.strip()
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

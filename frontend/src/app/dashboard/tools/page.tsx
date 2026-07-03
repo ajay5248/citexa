@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,6 +30,8 @@ export default function ToolsPage() {
   const [loading, setLoading] = useState(false);
   const [url, setUrl] = useState("");
   const [topic, setTopic] = useState("");
+  const [count, setCount] = useState(5);
+  const [userPlan, setUserPlan] = useState("free");
   
   // Schema specific state
   const [businessType, setBusinessType] = useState("Organization");
@@ -48,6 +50,25 @@ export default function ToolsPage() {
 
   const [result, setResult] = useState<ToolsResult | null>(null);
 
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+        const res = await fetch(`${apiUrl}/users/me`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const user = await res.json();
+          setUserPlan(user.plan || "free");
+        }
+      } catch (e) {
+        console.error("Error fetching user role in tools page:", e);
+      }
+    };
+    fetchUser();
+  }, []);
+
   const handleGenerateFAQ = async () => {
     setLoading(true);
     setResult(null);
@@ -59,7 +80,11 @@ export default function ToolsPage() {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,
         },
-        body: JSON.stringify({ url: url || undefined, topic: topic || undefined }),
+        body: JSON.stringify({ 
+          url: url || undefined, 
+          topic: topic || undefined,
+          count: count
+        }),
       });
       
       const data = await res.json();
@@ -188,6 +213,35 @@ export default function ToolsPage() {
                       className="bg-black/20 border-white/10 focus:border-primary/50 transition-colors"
                     />
                   </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-300">Number of FAQs</label>
+                    <select
+                      value={count}
+                      onChange={(e) => setCount(Number(e.target.value))}
+                      className="w-full h-11 px-3 rounded-md bg-black/20 border border-white/10 text-white focus:border-primary/50 focus:outline-none transition-colors text-sm"
+                    >
+                      <option value={5} className="bg-neutral-900">5 FAQs (All plans)</option>
+                      <option value={10} className="bg-neutral-900" disabled={userPlan === 'free'}>10 FAQs (Starter plan+)</option>
+                      <option value={20} className="bg-neutral-900" disabled={userPlan === 'free' || userPlan === 'starter'}>20 FAQs (Pro plan+)</option>
+                      <option value={50} className="bg-neutral-900" disabled={userPlan === 'free' || userPlan === 'starter' || userPlan === 'pro'}>50 FAQs (Enterprise plan+)</option>
+                      <option value={100} className="bg-neutral-900" disabled={userPlan === 'free' || userPlan === 'starter' || userPlan === 'pro'}>100 FAQs (Enterprise plan+)</option>
+                    </select>
+                    {userPlan === 'free' && (
+                      <p className="text-[10px] text-primary flex items-center gap-1 mt-1 leading-normal">
+                        Note: Free tier is capped at 5 FAQs. Upgrade subscription to unlock up to 100 questions.
+                      </p>
+                    )}
+                    {userPlan === 'starter' && (
+                      <p className="text-[10px] text-primary flex items-center gap-1 mt-1 leading-normal">
+                        Note: Starter plan is capped at 10 FAQs. Upgrade subscription to unlock up to 100 questions.
+                      </p>
+                    )}
+                    {userPlan === 'pro' && (
+                      <p className="text-[10px] text-primary flex items-center gap-1 mt-1 leading-normal">
+                        Note: Pro plan is capped at 20 FAQs. Upgrade subscription to unlock up to 100 questions.
+                      </p>
+                    )}
+                  </div>
                   <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                     <Button 
                       className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_15px_rgba(var(--primary),0.3)] hover:shadow-[0_0_25px_rgba(var(--primary),0.5)] transition-all mt-4" 
@@ -205,20 +259,20 @@ export default function ToolsPage() {
             {result && result.faqs && (
               <motion.div 
                 variants={itemVariants}
-                className="space-y-6"
+                className="space-y-6 max-h-[600px] overflow-y-auto pr-2"
               >
                 <Card className="bg-primary/5 border-primary/30 shadow-[0_0_20px_rgba(var(--primary),0.1)] backdrop-blur-md relative overflow-hidden group">
                   <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <CardHeader>
                     <CardTitle className="text-primary flex items-center gap-2">
                       <div className="w-2 h-2 rounded-full bg-primary shadow-[0_0_5px_rgba(var(--primary),0.8)] animate-pulse" />
-                      Generated FAQs
+                      Generated FAQs ({result.faqs.length})
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {result.faqs.map((faq: FAQ, i: number) => (
                       <motion.div 
-                        initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.1 }}
+                        initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}
                         key={i} 
                         className="bg-black/40 p-4 rounded-lg border border-white/10 hover:border-primary/30 transition-colors"
                       >
@@ -235,7 +289,7 @@ export default function ToolsPage() {
                     <CardDescription className="text-gray-400">Inject this into your {"website's"} &lt;head&gt;.</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <pre className="bg-black/60 p-4 rounded-lg overflow-x-auto text-xs text-blue-300 border border-white/10">
+                    <pre className="bg-black/60 p-4 rounded-lg overflow-x-auto text-xs text-blue-300 border border-white/10 max-h-[300px] overflow-y-auto">
                       <code>{result.json_ld}</code>
                     </pre>
                   </CardContent>
@@ -323,7 +377,7 @@ export default function ToolsPage() {
                     <CardDescription className="text-gray-400">Inject this into your {"website's"} &lt;head&gt;.</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <pre className="bg-black/60 p-4 rounded-lg overflow-x-auto text-sm text-blue-300 border border-white/10">
+                    <pre className="bg-black/60 p-4 rounded-lg overflow-x-auto text-sm text-blue-300 border border-white/10 max-h-[300px] overflow-y-auto">
                       <code>{result.json_ld}</code>
                     </pre>
                     <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
