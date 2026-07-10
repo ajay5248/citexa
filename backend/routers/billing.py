@@ -85,7 +85,7 @@ def create_checkout_session(
         except Exception as stripe_err:
             raise HTTPException(status_code=500, detail=f"Failed to create Stripe customer: {str(stripe_err)}")
 
-    # Frontend URL base (e.g. localhost:3000 or citexa.online)
+    # Frontend URL base (e.g. localhost:3000 or citexa-ai.online)
     frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
 
     try:

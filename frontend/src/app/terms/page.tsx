@@ -45,7 +45,7 @@ export default function TermsPage() {
               transition={{ duration: 1, delay: 0.3 }}
               className="max-w-[800px] mx-auto text-gray-400 text-lg md:text-xl font-light leading-relaxed mb-16 text-center"
             >
-              Please read these terms carefully before using Citexa's AI search visibility and auditing services.
+              Please read these terms carefully before using Citexa-AI's AI search visibility and auditing services.
             </motion.p>
 
             <motion.div 
@@ -58,7 +58,7 @@ export default function TermsPage() {
               <div>
                 <h2 className="text-2xl md:text-3xl font-black text-white mb-4 drop-shadow-md">1. Acceptance of Terms</h2>
                 <p className="text-gray-300 leading-relaxed text-base md:text-lg font-light">
-                  By accessing or using Citexa, you agree to comply with and be bound by these Terms of Service. If you do not agree to these terms, you should not access or use our services.
+                  By accessing or using Citexa-AI, you agree to comply with and be bound by these Terms of Service. If you do not agree to these terms, you should not access or use our services.
                 </p>
               </div>
 
@@ -85,7 +85,7 @@ export default function TermsPage() {
               <div>
                 <h2 className="text-2xl md:text-3xl font-black text-white mb-4 drop-shadow-md">4. Disclaimer of Warranties</h2>
                 <p className="text-gray-300 leading-relaxed text-base md:text-lg font-light">
-                  Citexa provides audit reports and recommendations "as is." AI models and search algorithms evolve dynamically, and we do not guarantee specific indexing rankings or citation rates on external search systems.
+                  Citexa-AI provides audit reports and recommendations "as is." AI models and search algorithms evolve dynamically, and we do not guarantee specific indexing rankings or citation rates on external search systems.
                 </p>
               </div>
 
@@ -94,7 +94,7 @@ export default function TermsPage() {
               <div>
                 <h2 className="text-2xl md:text-3xl font-black text-white mb-4 drop-shadow-md">5. Limitation of Liability</h2>
                 <p className="text-gray-300 leading-relaxed text-base md:text-lg font-light">
-                  To the maximum extent permitted by law, Citexa shall not be liable for any indirect, incidental, special, or consequential damages resulting from your use of or inability to use our platform.
+                  To the maximum extent permitted by law, Citexa-AI shall not be liable for any indirect, incidental, special, or consequential damages resulting from your use of or inability to use our platform.
                 </p>
                 <p className="text-gray-500 text-xs mt-4">
                   Last Updated: June 22, 2026

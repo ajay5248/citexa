@@ -148,7 +148,7 @@ export default function Login() {
                 transition={{ duration: 0.5, delay: 0.3 }}
                 className="text-gray-400"
               >
-                Log in to your Citexa dashboard
+                Log in to your Citexa-AI dashboard
               </motion.p>
             </div>
             

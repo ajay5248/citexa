@@ -11,8 +11,8 @@ interface FAQItem {
 
 const faqs: FAQItem[] = [
   {
-    question: "What is Citexa?",
-    answer: "Citexa is an AI Search Visibility and Answer Engine Optimization (AEO) platform. It helps businesses track, audit, and improve how their brand is recommended and cited across Generative AI search systems like ChatGPT, Google Gemini, Claude, Perplexity, and Microsoft Copilot.",
+    question: "What is Citexa-AI?",
+    answer: "Citexa-AI is an AI Search Visibility and Answer Engine Optimization (AEO) platform. It helps businesses track, audit, and improve how their brand is recommended and cited across Generative AI search systems like ChatGPT, Google Gemini, Claude, Perplexity, and Microsoft Copilot.",
   },
   {
     question: "How does Answer Engine Optimization (AEO) work?",
@@ -20,11 +20,11 @@ const faqs: FAQItem[] = [
   },
   {
     question: "Why is AI Search Visibility important for businesses?",
-    answer: "AI search engines and AI Overviews provide direct answers, reducing the need for users to click on external links. If your business is not cited as a source or recommended in these AI answers, you lose traffic and customers. Citexa helps ensure your brand remains highly visible in the era of AI-driven search.",
+    answer: "AI search engines and AI Overviews provide direct answers, reducing the need for users to click on external links. If your business is not cited as a source or recommended in these AI answers, you lose traffic and customers. Citexa-AI helps ensure your brand remains highly visible in the era of AI-driven search.",
   },
   {
     question: "How can I run a free AI Search Visibility audit for my site?",
-    answer: "You can sign up on Citexa and enter your website's URL. Our engine will crawl your pages, evaluate your schema structure, check readability, and simulate AI search queries to generate a comprehensive AI Search Visibility audit report with actionable fixes.",
+    answer: "You can sign up on Citexa-AI and enter your website's URL. Our engine will crawl your pages, evaluate your schema structure, check readability, and simulate AI search queries to generate a comprehensive AI Search Visibility audit report with actionable fixes.",
   },
 ];
 
@@ -66,7 +66,7 @@ export function FAQ() {
               Answer Engine <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">FAQ</span>
             </h2>
             <p className="max-w-[900px] text-gray-400 md:text-xl font-light">
-              Learn how Citexa helps prepare your digital footprint for the future of search.
+              Learn how Citexa-AI helps prepare your digital footprint for the future of search.
             </p>
           </div>
         </div>

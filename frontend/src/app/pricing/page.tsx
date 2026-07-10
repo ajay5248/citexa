@@ -46,7 +46,7 @@ export default function PricingPage() {
               transition={{ duration: 1, delay: 0.3 }}
               className="max-w-[700px] mx-auto text-gray-400 text-lg md:text-2xl font-light leading-relaxed"
             >
-              Citexa is currently in open beta. Create an account today and optimize your brand's AI search footprint for free.
+              Citexa-AI is currently in open beta. Create an account today and optimize your brand's AI search footprint for free.
             </motion.p>
           </div>
         </div>

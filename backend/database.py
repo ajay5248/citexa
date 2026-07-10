@@ -52,12 +52,12 @@ def _initialize_db():
                 )
             except Exception as e:
                 print(f"DATABASE WARNING: Failed to connect to PostgreSQL ({e}). Falling back to local SQLite database.")
-                SQLALCHEMY_DATABASE_URL = "sqlite:///./citexa.db"
+                SQLALCHEMY_DATABASE_URL = "sqlite:///./citexa-ai.db"
 
         if engine_instance is None:
             # Use SQLite engine
             if not SQLALCHEMY_DATABASE_URL:
-                SQLALCHEMY_DATABASE_URL = "sqlite:///./citexa.db"
+                SQLALCHEMY_DATABASE_URL = "sqlite:///./citexa-ai.db"
             engine_instance = create_engine(
                 SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
             )

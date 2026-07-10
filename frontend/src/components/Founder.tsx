@@ -218,7 +218,7 @@ export function Founder() {
 
             {/* Description Paragraph */}
             <p className="text-gray-400 text-base md:text-lg leading-relaxed font-light">
-              Ajay Adhikari founded Citexa with a vision to bridge the gap between cutting-edge technology and real-world business growth. With expertise in AI, web development, automation, and Answer Engine Optimization (AEO), he focuses on creating innovative digital solutions that help startups and businesses scale faster.
+              Ajay Adhikari founded Citexa-AI with a vision to bridge the gap between cutting-edge technology and real-world business growth. With expertise in AI, web development, automation, and Answer Engine Optimization (AEO), he focuses on creating innovative digital solutions that help startups and businesses scale faster.
             </p>
 
             {/* Social Buttons */}
@@ -242,7 +242,7 @@ export function Founder() {
                 <span className="text-sm font-semibold tracking-wide">GitHub</span>
               </a>
               <a 
-                href="mailto:ajay@citexa.com"
+                href="mailto:ajay@citexa-ai.com"
                 className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/[0.02] hover:bg-indigo-500/10 border border-white/5 hover:border-indigo-500/40 text-gray-300 hover:text-white transition-all duration-300 group/social hover:-translate-y-0.5"
               >
                 <Mail className="size-4 text-indigo-400 transition-transform group-hover/social:scale-110" />

@@ -45,7 +45,7 @@ export default function PrivacyPage() {
               transition={{ duration: 1, delay: 0.3 }}
               className="max-w-[800px] mx-auto text-gray-400 text-lg md:text-xl font-light leading-relaxed mb-16 text-center"
             >
-              At Citexa, we are committed to protecting your personal information and being transparent about how we process data.
+              At Citexa-AI, we are committed to protecting your personal information and being transparent about how we process data.
             </motion.p>
 
             <motion.div 
@@ -85,7 +85,7 @@ export default function PrivacyPage() {
               <div>
                 <h2 className="text-2xl md:text-3xl font-black text-white mb-4 drop-shadow-md">4. Your Data Rights</h2>
                 <p className="text-gray-300 leading-relaxed text-base md:text-lg font-light">
-                  You have the right to access, rectify, or erase the personal data we store about you. You can also object to or restrict processing. To make a request, please contact us at <strong>support@citexa.online</strong>.
+                  You have the right to access, rectify, or erase the personal data we store about you. You can also object to or restrict processing. To make a request, please contact us at <strong>support@citexa-ai.online</strong>.
                 </p>
               </div>
 

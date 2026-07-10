@@ -37,7 +37,7 @@ export function Hero() {
                   transition={{ duration: 1, delay: 0.3 }}
                   className="mx-auto max-w-[800px] text-gray-300 md:text-xl lg:text-[22px] font-light leading-relaxed"
                 >
-                  Citexa helps businesses improve visibility across ChatGPT, Gemini, Claude, Perplexity, Copilot and Google AI Overviews through Answer Engine Optimization.
+                  Citexa-AI helps businesses improve visibility across ChatGPT, Gemini, Claude, Perplexity, Copilot and Google AI Overviews through Answer Engine Optimization.
                 </motion.p>
               </div>
 

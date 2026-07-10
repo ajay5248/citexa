@@ -30,7 +30,7 @@ export function Navbar() {
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <Image 
               src="/logo.png" 
-              alt="Citexa" 
+              alt="Citexa-AI" 
               width={120} 
               height={40} 
               className="object-contain dark:grayscale dark:contrast-200 dark:invert dark:mix-blend-screen" 

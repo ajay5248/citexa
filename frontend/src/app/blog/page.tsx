@@ -41,7 +41,7 @@ export default function BlogPage() {
       date: "Jun 12, 2026", 
       excerpt: "What goes into calculating your AI readiness and how you can improve it today.",
       content: [
-        "At Citexa, we evaluate your digital presence using four core indexes: Overall AEO Score, Schema Score, Content Readiness, and Citation Velocity.",
+        "At Citexa-AI, we evaluate your digital presence using four core indexes: Overall AEO Score, Schema Score, Content Readiness, and Citation Velocity.",
         "Your Schema Score tests the implementation of semantic headers and JSON-LD data. Content Readiness evaluates search authority, checking if your articles contain direct answers to natural language questions.",
         "Citation Velocity tracks how often your brand is mentioned across authoritative domains and public wikis. Improving these metrics ensures that when LLM search engines synthesize answers, your brand receives the citation."
       ]

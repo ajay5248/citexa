@@ -8,8 +8,8 @@ from reportlab.lib import colors
 from reportlab.pdfgen import canvas
 
 # Base paths
-WORKSPACE_DIR = "/Users/ajay/.gemini/antigravity-ide/scratch/citexa"
-OUTPUT_PDF_PATH = os.path.join(WORKSPACE_DIR, "citexa_project_report_150_pages.pdf")
+WORKSPACE_DIR = os.path.dirname(os.path.abspath(__file__))
+OUTPUT_PDF_PATH = os.path.join(WORKSPACE_DIR, "citexa-ai_project_report_150_pages.pdf")
 
 # Custom Canvas for Headers, Footers, and Page Numbers
 class NumberedCanvas(canvas.Canvas):
@@ -57,7 +57,7 @@ class NumberedCanvas(canvas.Canvas):
         # Header
         self.setFont("Helvetica-Bold", 8)
         self.setFillColor(colors.HexColor("#1E3A8A")) # Royal Blue 900
-        self.drawString(54, 750, "CITEXA: AI SEARCH VISIBILITY & ANSWER ENGINE OPTIMIZATION PLATFORM")
+        self.drawString(54, 750, "CITEXA-AI: AI SEARCH VISIBILITY & ANSWER ENGINE OPTIMIZATION PLATFORM")
         self.setStrokeColor(colors.HexColor("#CBD5E1")) # Light Grey
         self.setLineWidth(0.5)
         self.line(54, 742, 558, 742)
@@ -66,7 +66,7 @@ class NumberedCanvas(canvas.Canvas):
         self.line(54, 54, 558, 54)
         self.setFont("Helvetica", 8)
         self.setFillColor(colors.HexColor("#475569")) # Muted Slate
-        self.drawString(54, 40, "CONFIDENTIAL - CITEXA SYSTEM DOCUMENTATION")
+        self.drawString(54, 40, "CONFIDENTIAL - CITEXA-AI SYSTEM DOCUMENTATION")
         page_str = f"Page {self._pageNumber} of {page_count}"
         self.drawRightString(558, 40, page_str)
         
@@ -154,13 +154,13 @@ def build_pdf():
     # ------------------ PAGE 1: COVER PAGE ------------------
     cover_elements = [
         Spacer(1, 100),
-        Paragraph("CITEXA PLATFORM REPORT", ParagraphStyle('CoverTitle', parent=h1_style, fontSize=32, leading=38, textColor=colors.HexColor("#1E3A8A"))),
+        Paragraph("CITEXA-AI PLATFORM REPORT", ParagraphStyle('CoverTitle', parent=h1_style, fontSize=32, leading=38, textColor=colors.HexColor("#1E3A8A"))),
         Paragraph("AI Search Visibility & Answer Engine Optimization", ParagraphStyle('CoverSubtitle', parent=normal_style, fontSize=16, leading=20, textColor=colors.HexColor("#475569"))),
         Spacer(1, 40),
         Paragraph("A Comprehensive 150-Page System Design, Source Code Documentation, & Architecture Manual", ParagraphStyle('CoverDesc', parent=normal_style, fontSize=12, leading=16, textColor=colors.HexColor("#0D9488"))),
         Spacer(1, 180),
         Table([
-            [Paragraph("<b>Author:</b> Citexa Core Engineering Group", normal_style)],
+            [Paragraph("<b>Author:</b> Citexa-AI Core Engineering Group", normal_style)],
             [Paragraph("<b>Status:</b> Approved", normal_style)],
             [Paragraph(f"<b>Date:</b> {datetime.datetime.now().strftime('%B %Y')}", normal_style)],
             [Paragraph("<b>Version:</b> 1.4.0 (Stable)", normal_style)],
@@ -235,19 +235,19 @@ def build_pdf():
         }
 
     # Chapter 1: Introduction (Pages 4-5)
-    set_page(4, "1. Executive Summary & Vision", "The Citexa AI Search visibility Platform", [
-        "Welcome to Citexa, the industry-leading platform engineered specifically to address the paradigm shift in digital search and marketing: the transition from Search Engine Optimization (SEO) to Answer Engine Optimization (AEO). Traditionally, companies optimized their websites to rank on standard keyword search results pages, relying on search engines like Google to drive click-through traffic to their domains.",
-        "With the rise of Large Language Models (LLMs) such as OpenAI's GPT-4, Google's Gemini, and Anthropic's Claude, search is shifting to synthesis. Users now ask natural language questions and receive consolidated, direct answers. Citexa provides the analytical metrics, automated diagnostic audits, and schema generation tools required to ensure your brand's assets are correctly crawled, ingested, indexed, and cited by AI answer engines."
+    set_page(4, "1. Executive Summary & Vision", "The Citexa-AI AI Search visibility Platform", [
+        "Welcome to Citexa-AI, the industry-leading platform engineered specifically to address the paradigm shift in digital search and marketing: the transition from Search Engine Optimization (SEO) to Answer Engine Optimization (AEO). Traditionally, companies optimized their websites to rank on standard keyword search results pages, relying on search engines like Google to drive click-through traffic to their domains.",
+        "With the rise of Large Language Models (LLMs) such as OpenAI's GPT-4, Google's Gemini, and Anthropic's Claude, search is shifting to synthesis. Users now ask natural language questions and receive consolidated, direct answers. Citexa-AI provides the analytical metrics, automated diagnostic audits, and schema generation tools required to ensure your brand's assets are correctly crawled, ingested, indexed, and cited by AI answer engines."
     ])
     set_page(5, "1.1 The Shift from SEO to AEO", "Understanding the Search Paradigm", [
         "The shift from classic web links to synthesized answers means that click-through rates (CTR) are dropping globally. AI crawlers index websites to extract semantic knowledge. If your website does not contain schema structured markup (JSON-LD), has poor entity mapping, or lacks factual clarity, AI engines will ignore your site during RAG (Retrieval-Augmented Generation) context building.",
-        "Citexa acts as your brand's AI search agent. It audits your pages, grades them on schema crawlability, context quality, and citation velocity, and provides actionable engineering recommendations to ensure your brand remains highly visible in search summaries."
+        "Citexa-AI acts as your brand's AI search agent. It audits your pages, grades them on schema crawlability, context quality, and citation velocity, and provides actionable engineering recommendations to ensure your brand remains highly visible in search summaries."
     ])
 
     # Chapter 2: Technical Architecture (Pages 6-10)
     set_page(6, "2. Technical Architecture Overview", "System Decomposition", [
-        "The Citexa platform is built on a highly modular, secure, and performant web architecture, leveraging the strengths of Next.js for the frontend client-side rendering and FastAPI for the backend REST APIs.",
-        "The backend is developed with Python 3.9 and utilizes SQLAlchemy ORM to manage relational databases (SQLite for local development and PostgreSQL for production deployments). FastAPI's asynchronous handlers allow Citexa to manage parallel background execution threads, enabling heavy web crawling and assessment without blocking normal REST request-response cycles.",
+        "The Citexa-AI platform is built on a highly modular, secure, and performant web architecture, leveraging the strengths of Next.js for the frontend client-side rendering and FastAPI for the backend REST APIs.",
+        "The backend is developed with Python 3.9 and utilizes SQLAlchemy ORM to manage relational databases (SQLite for local development and PostgreSQL for production deployments). FastAPI's asynchronous handlers allow Citexa-AI to manage parallel background execution threads, enabling heavy web crawling and assessment without blocking normal REST request-response cycles.",
         "The frontend is built on the Next.js App Router paradigm, styling layout components using Tailwind CSS and components.json configs. Authentication is governed by custom JSON Web Tokens (JWT) and Google OAuth integrations."
     ])
     set_page(7, "2.1 System Integration & Data Flows", "Component Interactions", [
@@ -256,24 +256,24 @@ def build_pdf():
         "The backend then immediately returns the pending audit object to the client, keeping the HTTP connection short and responsive. The client-side dashboard uses react hooks to poll the audit status dynamically until the audit finishes."
     ])
     set_page(8, "2.2 Third-Party Integrations", "APIs and Crawlers", [
-        "Citexa connects with several external API endpoints to collect audit data. It first uses the `wikipedia` library to perform entity search and extract real-world context summaries for target domains.",
+        "Citexa-AI connects with several external API endpoints to collect audit data. It first uses the `wikipedia` library to perform entity search and extract real-world context summaries for target domains.",
         "It then bundles the entity info and Wikipedia context into a structured prompt, dispatching it to OpenAI's GPT-4o-mini model using the official `openai` SDK. The API key is securely retrieved from environment variables, with a dummy key fallback mechanism to prevent startup crashes when offline.",
         "The LLM responds with a structured JSON object containing overall scores, schema scores, content scores, citation scores, and recommendations. This JSON is saved directly into the audit record."
     ])
     set_page(9, "2.3 Retrieval-Augmented Generation (RAG) Flow", "Assessment Mechanism", [
-        "The core visibility score calculation mimics the RAG indexing pipeline utilized by modern AI engines. During an audit, Citexa checks if the target site's topic is mentioned in open knowledge bases like Wikipedia.",
-        "By simulating this retrieval step, Citexa assesses whether the brand has established 'entity authority'. The LLM then reviews this information to identify gap areas, such as whether the website has missing schema metadata or lacks structured citation markers.",
+        "The core visibility score calculation mimics the RAG indexing pipeline utilized by modern AI engines. During an audit, Citexa-AI checks if the target site's topic is mentioned in open knowledge bases like Wikipedia.",
+        "By simulating this retrieval step, Citexa-AI assesses whether the brand has established 'entity authority'. The LLM then reviews this information to identify gap areas, such as whether the website has missing schema metadata or lacks structured citation markers.",
         "This simulation gives marketing teams direct insights into how an AI engine perceives their brand authority, allowing them to proactively resolve entity citation gaps."
     ])
     set_page(10, "2.4 Background Task Queue Design", "Asynchronous Processing in FastAPI", [
         "Because crawling websites, querying Wikipedia, and executing LLM prompts can take several seconds, performing these operations in the main HTTP request thread would result in request timeouts and a poor user experience.",
         "FastAPI's built-in `BackgroundTasks` parameters are leveraged to process these heavy jobs off the main event loop thread. A database session is opened locally in the background worker (`database.SessionLocal()`) and is closed safely when the job finishes.",
-        "This background queue structure allows Citexa to support many concurrent audit requests, scaling smoothly under high user load."
+        "This background queue structure allows Citexa-AI to support many concurrent audit requests, scaling smoothly under high user load."
     ])
 
     # Chapter 3: Database Design (Pages 11-15)
     set_page(11, "3. Database Schema Design", "Relational Mapping", [
-        "Citexa manages data relational integrity through an SQLAlchemy ORM database layer. The model structure consists of seven main tables: `users`, `tool_usages`, `websites`, `audits`, `competitors`, `reports`, and `contact_messages`.",
+        "Citexa-AI manages data relational integrity through an SQLAlchemy ORM database layer. The model structure consists of seven main tables: `users`, `tool_usages`, `websites`, `audits`, `competitors`, `reports`, and `contact_messages`.",
         "Each table is mapped to a Python class inheriting from the declarative database base in `database.py`. The relationships between entities are established using SQLAlchemy's `relationship` and `ForeignKey` classes, enabling cascading deletions and relational lookups."
     ])
     set_page(12, "3.1 The Users Entity", "Database Schema details", [
@@ -295,24 +295,24 @@ def build_pdf():
 
     # Chapter 4: Security (Pages 16-20)
     set_page(16, "4. System Security & Authentication", "Security Framework", [
-        "Citexa prioritizes user data security. The security model covers credential storage, JWT-based API authorization, Google OAuth login protocols, route middleware guards, and CORS configuration.",
-        "By enforcing authentication at the API gateway layer, Citexa prevents unauthorized access to website profiles, audits, and custom reports. Let's explore the cryptographic mechanisms securing the system."
+        "Citexa-AI prioritizes user data security. The security model covers credential storage, JWT-based API authorization, Google OAuth login protocols, route middleware guards, and CORS configuration.",
+        "By enforcing authentication at the API gateway layer, Citexa-AI prevents unauthorized access to website profiles, audits, and custom reports. Let's explore the cryptographic mechanisms securing the system."
     ])
     set_page(17, "4.1 JWT Authentication Protocol", "Access Token Construction", [
         "User sessions are managed using stateless JSON Web Tokens (JWT). When a user successfully authenticates using their email and password, the server issues a JWT signed with a HS256 HMAC algorithm.",
         "The token contains claims like the subject email, token type, and expiration timestamps. The client stores this token in local storage and includes it as a Bearer token in subsequent requests. The backend uses Python's `jose` cryptographic library to verify signature integrity and reject tampered tokens."
     ])
     set_page(18, "4.2 Google OAuth Authentication Flow", "External Identity Providers", [
-        "To streamline access, Citexa integrates Google OAuth. When users login with Google, the frontend fetches a Google identity token and posts it to the backend endpoint `/auth/google`.",
-        "The backend makes a secure backend-to-backend request to the Google API (`googleapis.com/oauth2/v3/userinfo`) to validate token legitimacy and retrieve user profiles. If valid, Citexa matches the email. If the user does not exist yet, a secure profile is auto-provisioned with random cryptographic credentials."
+        "To streamline access, Citexa-AI integrates Google OAuth. When users login with Google, the frontend fetches a Google identity token and posts it to the backend endpoint `/auth/google`.",
+        "The backend makes a secure backend-to-backend request to the Google API (`googleapis.com/oauth2/v3/userinfo`) to validate token legitimacy and retrieve user profiles. If valid, Citexa-AI matches the email. If the user does not exist yet, a secure profile is auto-provisioned with random cryptographic credentials."
     ])
     set_page(19, "4.3 Route Guards & Middleware Authorization", "Access Controls", [
         "FastAPI's dependency injection system is utilized to build robust route guards. Endpoints targeting user data depend on a custom `get_current_user` method defined in the authentication module.",
         "This guard reads the Authorization header, decodes the token, fetches the user from the database, and injects the user model into the endpoint handler. If any step fails, the request is immediately rejected with a 401 Unauthorized or 403 Forbidden HTTP status, protecting private API routes."
     ])
     set_page(20, "4.4 CORS & Environment Protection Policies", "Cross-Origin Policies", [
-        "To protect the API against cross-site request forgery, Citexa implements strict Cross-Origin Resource Sharing (CORS) rules. In development, standard localhost ports are allowed.",
-        "In production, CORS is restricted to validated domain origins (e.g. citexa.vercel.app). These origins are loaded dynamically from environment variables using `pydantic-settings` to avoid hardcoding production configurations."
+        "To protect the API against cross-site request forgery, Citexa-AI implements strict Cross-Origin Resource Sharing (CORS) rules. In development, standard localhost ports are allowed.",
+        "In production, CORS is restricted to validated domain origins (e.g. citexa-ai.vercel.app). These origins are loaded dynamically from environment variables using `pydantic-settings` to avoid hardcoding production configurations."
     ])
 
     # Chapter 5: Backend Walkthrough (Pages 21-40)
@@ -393,7 +393,7 @@ def build_pdf():
     ])
 
     set_page(38, "5.17 Deployment Configuration: render.yaml", "Infrastructure-as-Code Setup", [
-        "Citexa defines hosting environments using Infrastructure-as-Code definitions. Let's look at the Render configuration file:"
+        "Citexa-AI defines hosting environments using Infrastructure-as-Code definitions. Let's look at the Render configuration file:"
     ], code_file="render.yaml", code_range=(1, 20))
 
     set_page(39, "5.18 Python Dependency Tree: requirements.txt", "Dependency Trees", [
@@ -492,7 +492,7 @@ def build_pdf():
     ])
 
     set_page(60, "6.19 Summary of API Endpoints & Request/Response Lifecycle", "Overview of API Routing", [
-        "Citexa's API architecture divides features into modular domains: website registry, audits, reports, competitor trackings, and tools.",
+        "Citexa-AI's API architecture divides features into modular domains: website registry, audits, reports, competitor trackings, and tools.",
         "By enforcing authentication, validating schemas, and processing tasks asynchronously, the routers maintain responsive API endpoints."
     ])
 
@@ -523,12 +523,12 @@ def build_pdf():
             70: [["Endpoint", "GET /reports/{id}/download"], ["Auth", "Bearer JWT"], ["Description", "Validates file paths and streams document file downloads."]]
         }
         set_page(p, f"9.{p-60} REST API Endpoint: {titles[p]}", "API Reference tables", [
-            f"This reference sheet provides specifications for Citexa REST endpoints, detailing URL patterns, authorization rules, and JSON payloads."
+            f"This reference sheet provides specifications for Citexa-AI REST endpoints, detailing URL patterns, authorization rules, and JSON payloads."
         ], table_data=[["Field", "Value"]] + endpoints_data[p])
 
     # Chapter 7: Frontend Architecture (Pages 71-100)
     set_page(71, "7. Frontend Next.js Architecture", "Client Application Configuration", [
-        "The Citexa frontend is built using Next.js, featuring an App Router structure. It uses client-side rendering for charts and forms, and server-side rendering for landing pages, keeping the UI fast and responsive.",
+        "The Citexa-AI frontend is built using Next.js, featuring an App Router structure. It uses client-side rendering for charts and forms, and server-side rendering for landing pages, keeping the UI fast and responsive.",
         "Next.js handles static page optimization, automatic image rendering, and script loader management. Let's look at the configuration files."
     ])
     set_page(72, "7.1 next.config.ts Walkthrough", "Next.js Builder Configurations", [
@@ -603,14 +603,14 @@ def build_pdf():
     ])
     set_page(89, "7.18 About Page Layout", "Company Mission layouts", [
         "The about page highlights the company's mission and team, explaining the strategic vision behind AEO optimization.",
-        "It explains the shift toward semantic answers, positioning Citexa as a key partner for digital visibility."
+        "It explains the shift toward semantic answers, positioning Citexa-AI as a key partner for digital visibility."
     ])
     set_page(90, "7.19 Blog Layout", "Technical Articles lists", [
         "The blog system lists technical guides and updates. It uses static generation to ensure articles load quickly for search indexing.",
         "It features pagination and keyword filters, helping visitors find articles on search crawlers and structured data."
     ])
     set_page(91, "7.20 Services List Page", "Feature matrix comparisons", [
-        "The services page details Citexa's tools: structured schemas, AI tracking, API access, and reporting options.",
+        "The services page details Citexa-AI's tools: structured schemas, AI tracking, API access, and reporting options.",
         "It uses comparison tables to highlight core benefits, helping visitors select the right tools for their business."
     ])
     set_page(92, "7.21 Pricing Matrix Page", "Subscription details", [
@@ -662,7 +662,7 @@ def build_pdf():
     ])
     for p in range(106, 121):
         set_page(p, f"8.{p-100} UI Component Reference: Page {p}", "Standard component designs", [
-            "Citexa's UI elements follow modern design principles: clear states, accessible colors, and fluid layouts.",
+            "Citexa-AI's UI elements follow modern design principles: clear states, accessible colors, and fluid layouts.",
             "These reusable components (e.g. Buttons, Cards, Inputs, Modals) adapt to desktop and mobile displays, ensuring a consistent user experience."
         ])
 
@@ -731,7 +731,7 @@ def build_pdf():
     ])
     set_page(148, "11.2 Multi-tenant Enterprise Databases", "Scaling Database Infrastructure", [
         "As user signups grow, we will implement multi-tenant database partitioning to scale database storage.",
-        "Partitioning user databases improves query speed and data isolation, allowing Citexa to support large enterprise teams."
+        "Partitioning user databases improves query speed and data isolation, allowing Citexa-AI to support large enterprise teams."
     ])
 
     # Bibliography (Page 149)
@@ -743,11 +743,11 @@ def build_pdf():
     ])
 
     # Back Cover (Page 150)
-    set_page(150, "CITEXA CORE TECHNICAL SPECIFICATIONS", "Document Metadata and Corporate Identity", [
-        "Document: Citexa System Architecture & Source Code Documentation Manual",
+    set_page(150, "CITEXA-AI CORE TECHNICAL SPECIFICATIONS", "Document Metadata and Corporate Identity", [
+        "Document: Citexa-AI System Architecture & Source Code Documentation Manual",
         "Page Count: Exactly 150 Pages (AEO Compliant Format)",
         "Classification: Commercial Confidential",
-        "All rights reserved. Copyright 2026 Citexa Corp. Citexa, the Citexa logo, and Answer Engine Optimization ratings are registered trademarks. For inquiries, contact: technical-support@citexa.online."
+        "All rights reserved. Copyright 2026 Citexa-AI Corp. Citexa-AI, the Citexa-AI logo, and Answer Engine Optimization ratings are registered trademarks. For inquiries, contact: technical-support@citexa-ai.online."
     ])
 
     # ------------------ ASSEMBLE STORY PAGE BY PAGE ------------------

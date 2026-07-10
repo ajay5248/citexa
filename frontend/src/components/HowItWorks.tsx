@@ -89,7 +89,7 @@ export function HowItWorks() {
     {
       number: "01",
       title: "Add Website",
-      description: "Connect your website to the Citexa platform.",
+      description: "Connect your website to the Citexa-AI platform.",
       href: "/dashboard/websites",
     },
     {

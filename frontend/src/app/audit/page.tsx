@@ -230,7 +230,7 @@ export default function FreeAuditPage() {
                     <div className="space-y-1">
                       <h4 className="font-bold text-orange-300 text-sm md:text-base">Implementation Disclaimer</h4>
                       <p className="text-gray-400 text-xs md:text-sm font-light leading-relaxed">
-                        Citexa is strictly an analysis and recommendation platform. We diagnose optimization gaps and generate structured schema markup or FAQs. **No direct implementation or injection services are provided on your website by Citexa.** All recommendations must be manually implemented by you or your system developer to take effect.
+                        Citexa-AI is strictly an analysis and recommendation platform. We diagnose optimization gaps and generate structured schema markup or FAQs. **No direct implementation or injection services are provided on your website by Citexa-AI.** All recommendations must be manually implemented by you or your system developer to take effect.
                       </p>
                     </div>
                   </div>

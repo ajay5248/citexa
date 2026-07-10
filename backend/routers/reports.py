@@ -30,7 +30,7 @@ def generate_report(report_in: schemas.ReportCreate, db: Session = Depends(datab
     
     report_content = []
     report_content.append(f"==================================================")
-    report_content.append(f"CITEXA AI SEARCH VISIBILITY REPORT")
+    report_content.append(f"CITEXA-AI SEARCH VISIBILITY REPORT")
     report_content.append(f"Title: {report_in.title}")
     report_content.append(f"Type: {report_in.report_type.replace('_', ' ').title()}")
     report_content.append(f"Generated on: {datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}")

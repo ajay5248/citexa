@@ -24,7 +24,7 @@ export default function AuditDetail() {
           return;
         }
 
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" && (window.location.hostname.includes("localhost") || window.location.hostname.includes("127.0.0.1")) ? "/api" : "https://citexa.onrender.com");
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" && (window.location.hostname.includes("localhost") || window.location.hostname.includes("127.0.0.1")) ? "/api" : "https://citexa-ai.onrender.com");
 
         // Fetch specific audit
         const auditRes = await fetch(`${apiUrl}/audits/${params.id}`, {
@@ -240,7 +240,7 @@ export default function AuditDetail() {
               <div className="space-y-1">
                 <h4 className="font-bold text-orange-300 text-sm md:text-base">Implementation Notice</h4>
                 <p className="text-gray-400 text-xs md:text-sm font-light leading-relaxed">
-                  Citexa provides Answer Engine Optimization audits, automated markup definitions, and structured recommendations. **Citexa does not directly edit, update, inject, or deploy code or optimization services onto your live website.** All recommendations must be manually implemented by you or your technical administrator.
+                  Citexa-AI provides Answer Engine Optimization audits, automated markup definitions, and structured recommendations. **Citexa-AI does not directly edit, update, inject, or deploy code or optimization services onto your live website.** All recommendations must be manually implemented by you or your technical administrator.
                 </p>
               </div>
             </div>

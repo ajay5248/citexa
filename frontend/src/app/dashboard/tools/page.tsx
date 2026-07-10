@@ -23,7 +23,7 @@ const itemVariants = {
   visible: { opacity: 1, x: 0, transition: { duration: 0.4 } },
 };
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" && (window.location.hostname.includes("localhost") || window.location.hostname.includes("127.0.0.1")) ? "/api" : "https://citexa.onrender.com");
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" && (window.location.hostname.includes("localhost") || window.location.hostname.includes("127.0.0.1")) ? "/api" : "https://citexa-ai.onrender.com");
 
 export default function ToolsPage() {
   const [activeTab, setActiveTab] = useState<"faq" | "schema" | "bulk">("faq");
@@ -201,7 +201,7 @@ export default function ToolsPage() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `citexa_bulk_schemas_${bulkSchemaType.toLowerCase()}.txt`;
+    link.download = `citexa-ai_bulk_schemas_${bulkSchemaType.toLowerCase()}.txt`;
     link.click();
   };
 
@@ -392,7 +392,7 @@ export default function ToolsPage() {
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-300">Business Name</label>
                     <Input 
-                      placeholder="Citexa" 
+                      placeholder="Citexa-AI" 
                       value={businessName} 
                       onChange={(e) => setBusinessName(e.target.value)} 
                       className="bg-black/20 border-white/10 focus:border-primary/50 transition-colors"

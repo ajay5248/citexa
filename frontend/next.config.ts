@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:8000/:path*' : 'https://citexa.onrender.com/:path*', // Proxy to Backend
+        destination: process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:8000/:path*' : 'https://citexa-ai.onrender.com/:path*', // Proxy to Backend
       },
     ];
   }

@@ -18,7 +18,7 @@ export function Footer() {
           <div className="space-y-4">
             <Image 
               src="/logo.png" 
-              alt="Citexa" 
+              alt="Citexa-AI" 
               width={120} 
               height={40} 
               className="object-contain dark:grayscale dark:contrast-200 dark:invert dark:mix-blend-screen" 
@@ -52,7 +52,7 @@ export function Footer() {
           </div>
         </div>
         <div className="flex flex-col md:flex-row items-center justify-between pt-8 border-t border-border/40 text-sm text-gray-400">
-          <p>© {new Date().getFullYear()} Citexa. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Citexa-AI. All rights reserved.</p>
         </div>
       </div>
     </motion.footer>
