@@ -50,15 +50,15 @@ async def lifespan(app: FastAPI):
         print(f"DATABASE INITIALIZATION WARNING: Failed to initialize database tables on startup. Error: {db_err}")
     yield
 
-app = FastAPI(title="Citexa-AI API", lifespan=lifespan)
+app = FastAPI(title="Citexa API", lifespan=lifespan)
 
 # Configure CORS
 allowed_origins = [
     "http://localhost:3000",
-    "https://citexa-ai.vercel.app",
-    "https://citexa-ai.online",
-    "https://www.citexa-ai.online",
-    "https://citexa-ai-app.vercel.app"
+    "https://citexa.vercel.app",
+    "https://citexa.online",
+    "https://www.citexa.online",
+    "https://citexa-app.vercel.app"
 ]
 env_origins = os.getenv("ALLOWED_ORIGINS")
 if env_origins:
@@ -74,7 +74,7 @@ app.add_middleware(
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to Citexa-AI API"}
+    return {"message": "Welcome to Citexa API"}
 
 @app.get("/health")
 def health_check():

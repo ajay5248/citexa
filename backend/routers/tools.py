@@ -44,7 +44,7 @@ def generate_faq(request: FAQRequest, db: Session = Depends(database.get_db), cu
         from bs4 import BeautifulSoup
         try:
             with httpx.Client(timeout=8.0, follow_redirects=True) as client:
-                headers = {"User-Agent": "CitexaAIBot/1.0 (Answer Engine Optimization Crawler)"}
+                headers = {"User-Agent": "CitexaBot/1.0 (Answer Engine Optimization Crawler)"}
                 response = client.get(request.url, headers=headers)
                 if response.status_code == 200:
                     soup = BeautifulSoup(response.text, 'html.parser')

@@ -27,14 +27,17 @@ export function Navbar() {
     >
       <div className="container flex h-16 max-w-screen-2xl items-center mx-auto px-4">
         <div className="mr-4 flex">
-          <Link href="/" className="mr-6 flex items-center space-x-2">
+          <Link href="/" className="mr-6 flex items-center space-x-2.5">
             <Image 
               src="/logo.png" 
               alt="Citexa-AI" 
-              width={120} 
-              height={40} 
-              className="object-contain dark:grayscale dark:contrast-200 dark:invert dark:mix-blend-screen" 
+              width={36} 
+              height={36} 
+              className="object-contain rounded-md" 
             />
+            <span className="font-bold text-lg tracking-tight bg-gradient-to-r from-[#4ade80] via-[#38bdf8] to-[#a855f7] bg-clip-text text-transparent">
+              Citexa-AI
+            </span>
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">
             {["Services", "Pricing", "About", "Blog"].map((item) => (

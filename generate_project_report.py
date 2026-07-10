@@ -8,7 +8,7 @@ from reportlab.lib import colors
 from reportlab.pdfgen import canvas
 
 # Base paths
-WORKSPACE_DIR = os.path.dirname(os.path.abspath(__file__))
+WORKSPACE_DIR = "/Users/ajay/.gemini/antigravity-ide___SCRATCH_CITEXA-AI_PATH___"
 OUTPUT_PDF_PATH = os.path.join(WORKSPACE_DIR, "citexa-ai_project_report_150_pages.pdf")
 
 # Custom Canvas for Headers, Footers, and Page Numbers
@@ -312,7 +312,7 @@ def build_pdf():
     ])
     set_page(20, "4.4 CORS & Environment Protection Policies", "Cross-Origin Policies", [
         "To protect the API against cross-site request forgery, Citexa-AI implements strict Cross-Origin Resource Sharing (CORS) rules. In development, standard localhost ports are allowed.",
-        "In production, CORS is restricted to validated domain origins (e.g. citexa-ai.vercel.app). These origins are loaded dynamically from environment variables using `pydantic-settings` to avoid hardcoding production configurations."
+        "In production, CORS is restricted to validated domain origins (e.g. citexa-ai-ai.vercel.app). These origins are loaded dynamically from environment variables using `pydantic-settings` to avoid hardcoding production configurations."
     ])
 
     # Chapter 5: Backend Walkthrough (Pages 21-40)
@@ -747,7 +747,7 @@ def build_pdf():
         "Document: Citexa-AI System Architecture & Source Code Documentation Manual",
         "Page Count: Exactly 150 Pages (AEO Compliant Format)",
         "Classification: Commercial Confidential",
-        "All rights reserved. Copyright 2026 Citexa-AI Corp. Citexa-AI, the Citexa-AI logo, and Answer Engine Optimization ratings are registered trademarks. For inquiries, contact: technical-support@citexa-ai.online."
+        "All rights reserved. Copyright 2026 Citexa-AI-AI Corp. Citexa-AI, the Citexa-AI logo, and Answer Engine Optimization ratings are registered trademarks. For inquiries, contact: technical-support@citexa-ai-ai.online."
     ])
 
     # ------------------ ASSEMBLE STORY PAGE BY PAGE ------------------

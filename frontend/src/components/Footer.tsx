@@ -16,13 +16,18 @@ export function Footer() {
       <div className="container px-4 md:px-6 mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <div className="space-y-4">
-            <Image 
-              src="/logo.png" 
-              alt="Citexa-AI" 
-              width={120} 
-              height={40} 
-              className="object-contain dark:grayscale dark:contrast-200 dark:invert dark:mix-blend-screen" 
-            />
+            <Link href="/" className="flex items-center space-x-2.5">
+              <Image 
+                src="/logo.png" 
+                alt="Citexa-AI" 
+                width={36} 
+                height={36} 
+                className="object-contain rounded-md" 
+              />
+              <span className="font-bold text-lg tracking-tight bg-gradient-to-r from-[#4ade80] via-[#38bdf8] to-[#a855f7] bg-clip-text text-transparent">
+                Citexa-AI
+              </span>
+            </Link>
             <p className="text-sm text-gray-400">
               Be Found. Be Cited. Be Chosen.
             </p>
