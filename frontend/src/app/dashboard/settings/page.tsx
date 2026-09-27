@@ -29,7 +29,7 @@ interface UserProfile {
   subscription_status: string;
 }
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" && (window.location.hostname.includes("localhost") || window.location.hostname.includes("127.0.0.1")) ? "/api" : "https://citexa-ai.onrender.com");
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" && (window.location.hostname.includes("localhost") || window.location.hostname.includes("127.0.0.1")) ? "/api" : "https://citexa.onrender.com");
 
 export default function Settings() {
   const [profile, setProfile] = useState<UserProfile | null>(null);

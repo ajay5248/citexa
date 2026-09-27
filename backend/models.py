@@ -95,9 +95,11 @@ class ContactMessage(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
-    email = Column(String)
+    email = Column(String, nullable=True)
+    phone = Column(String, nullable=True)
     company = Column(String, nullable=True)
     website = Column(String, nullable=True)
-    message = Column(Text)
+    message = Column(Text, nullable=True)
+    source = Column(String, default="contact") # 'contact' or 'free-audit'
     is_read = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)

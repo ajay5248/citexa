@@ -6,6 +6,7 @@ import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Mail, ArrowRight } from "lucide-react";
 import { TiltCard } from "@/components/ui/TiltCard";
+import { CONTACT_EMAIL } from "@/lib/site";
 
 // Custom LinkedIn SVG Icon matching Lucide style
 function Linkedin(props: React.SVGProps<SVGSVGElement>) {
@@ -242,11 +243,11 @@ export function Founder() {
                 <span className="text-sm font-semibold tracking-wide">GitHub</span>
               </a>
               <a 
-                href="mailto:ajay@citexa-ai.com"
+                href={CONTACT_EMAIL ? `mailto:${CONTACT_EMAIL}` : "/contact"}
                 className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/[0.02] hover:bg-indigo-500/10 border border-white/5 hover:border-indigo-500/40 text-gray-300 hover:text-white transition-all duration-300 group/social hover:-translate-y-0.5"
               >
                 <Mail className="size-4 text-indigo-400 transition-transform group-hover/social:scale-110" />
-                <span className="text-sm font-semibold tracking-wide">Email</span>
+                <span className="text-sm font-semibold tracking-wide">{CONTACT_EMAIL ? "Email" : "Contact"}</span>
               </a>
             </div>
 
@@ -256,10 +257,10 @@ export function Founder() {
                 {/* Glow behind CTA */}
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-xl blur opacity-50 group-hover/cta:opacity-90 transition duration-500 group-hover/cta:duration-200" />
                 <Link
-                  href="/#contact"
+                  href="/contact"
                   className="relative flex items-center gap-2.5 px-8 py-4 bg-[#0a0a0d] hover:bg-transparent border border-white/10 hover:border-transparent rounded-xl text-white font-bold transition-all duration-500 leading-none group/btn hover:shadow-[0_0_30px_rgba(99,102,241,0.3)]"
                 >
-                  <span className="text-base tracking-wide">Let's Build Something Amazing</span>
+                  <span className="text-base tracking-wide">Book a 15-minute call</span>
                   <ArrowRight className="size-5 text-indigo-400 group-hover/btn:translate-x-1.5 transition-transform duration-300" />
                 </Link>
               </div>

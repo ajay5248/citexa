@@ -44,6 +44,16 @@ async def lifespan(app: FastAPI):
                 if 'subscription_status' not in user_columns:
                     print("DATABASE AUTO-MIGRATION: Adding 'subscription_status' column to 'users' table.")
                     conn.execute(text("ALTER TABLE users ADD COLUMN subscription_status VARCHAR"))
+
+            # Auto-migrate contact_messages table
+            contact_columns = [col['name'] for col in inspector.get_columns('contact_messages')]
+            with database.engine.begin() as conn:
+                if 'phone' not in contact_columns:
+                    print("DATABASE AUTO-MIGRATION: Adding 'phone' column to 'contact_messages' table.")
+                    conn.execute(text("ALTER TABLE contact_messages ADD COLUMN phone VARCHAR"))
+                if 'source' not in contact_columns:
+                    print("DATABASE AUTO-MIGRATION: Adding 'source' column to 'contact_messages' table.")
+                    conn.execute(text("ALTER TABLE contact_messages ADD COLUMN source VARCHAR DEFAULT 'contact'"))
         except Exception as mig_err:
             print(f"DATABASE AUTO-MIGRATION WARNING: Failed to auto-migrate. Error: {mig_err}")
     except Exception as db_err:
@@ -155,7 +165,7 @@ def update_user_me(user_update: schemas.UserUpdate, db: Session = Depends(databa
     db.refresh(db_user)
     return db_user
 
-from routers import audits, tools, websites, competitors, reports, billing, admin
+from routers import audits, tools, websites, competitors, reports, billing, admin, contact
 
 app.include_router(audits.router)
 app.include_router(tools.router)
@@ -164,6 +174,7 @@ app.include_router(competitors.router)
 app.include_router(reports.router)
 app.include_router(billing.router)
 app.include_router(admin.router)
+app.include_router(contact.router)
 
 @app.get("/debug-db")
 def debug_db():

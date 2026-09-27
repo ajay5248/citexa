@@ -47,7 +47,7 @@ export default function ServicesPage() {
               transition={{ duration: 1, delay: 0.3 }}
               className="max-w-[800px] mx-auto text-gray-400 text-lg md:text-2xl font-light leading-relaxed"
             >
-              From in-depth technical audits to automated schema markup, we provide the ultimate toolset to dominate the Answer Engine ecosystem.
+              We find out whether AI search engines recommend your business, then help you fix what's holding you back.
             </motion.p>
           </div>
         </div>

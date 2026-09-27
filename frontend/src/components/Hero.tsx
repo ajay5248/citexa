@@ -28,7 +28,7 @@ export function Hero() {
                   transition={{ duration: 1, delay: 0.1, type: "spring", bounce: 0.3 }}
                   className="text-[3rem] sm:text-[4rem] md:text-[5rem] lg:text-[6.5rem] font-extrabold tracking-tight leading-[1.1] bg-clip-text text-transparent bg-gradient-to-b from-blue-300 to-blue-600 drop-shadow-lg"
                 >
-                  Get Found in AI Search
+                  Does AI recommend your business?
                 </motion.h1>
                 
                 <motion.p 
@@ -37,7 +37,7 @@ export function Hero() {
                   transition={{ duration: 1, delay: 0.3 }}
                   className="mx-auto max-w-[800px] text-gray-300 md:text-xl lg:text-[22px] font-light leading-relaxed"
                 >
-                  Citexa-AI helps businesses improve visibility across ChatGPT, Gemini, Claude, Perplexity, Copilot and Google AI Overviews through Answer Engine Optimization.
+                  When customers ask ChatGPT, Gemini or Perplexity for a recommendation, we check whether your business is named and help you fix the gaps.
                 </motion.p>
               </div>
 
@@ -47,10 +47,10 @@ export function Hero() {
                 transition={{ duration: 1, delay: 0.4 }}
                 className="flex flex-col sm:flex-row gap-4 mt-8"
               >
-                <Link href="/register">
+                <Link href="/audit">
                   <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                     <Button size="lg" className="w-full sm:w-auto h-12 px-6 bg-[#2b88ff] hover:bg-blue-600 text-white rounded-lg font-medium border-none shadow-none">
-                      Get Free AI Visibility Audit
+                      Get my free AI visibility check
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </motion.div>
@@ -58,7 +58,7 @@ export function Hero() {
                 <Link href="/contact">
                   <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                     <Button size="lg" variant="outline" className="w-full sm:w-auto h-12 px-6 bg-slate-900/50 border-white/10 hover:bg-white/10 text-white rounded-lg font-medium shadow-none">
-                      Book a Strategy Call
+                      Book a 15-minute call
                     </Button>
                   </motion.div>
                 </Link>

@@ -72,3 +72,30 @@ def get_admin_stats(
         total_revenue_usd=total_revenue_usd,
         users=user_summaries
     )
+
+
+class LeadSummary(BaseModel):
+    id: int
+    name: Optional[str]
+    email: Optional[str]
+    phone: Optional[str]
+    website: Optional[str]
+    message: Optional[str]
+    source: Optional[str]
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+@router.get("/leads", response_model=List[LeadSummary])
+def get_leads(
+    current_user: schemas.User = Depends(auth.get_current_user),
+    db: Session = Depends(database.get_db)
+):
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not authorized to view leads"
+        )
+
+    return db.query(models.ContactMessage).order_by(models.ContactMessage.created_at.desc()).limit(500).all()

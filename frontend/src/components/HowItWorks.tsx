@@ -88,33 +88,33 @@ export function HowItWorks() {
   const steps = [
     {
       number: "01",
-      title: "Add Website",
-      description: "Connect your website to the Citexa-AI platform.",
-      href: "/dashboard/websites",
+      title: "Tell Us Your Website",
+      description: "Share your website and the questions customers ask when looking for a business like yours.",
+      href: "/audit",
     },
     {
       number: "02",
-      title: "Run AI Audit",
-      description: "Our system analyzes your entire site for AI search readiness.",
-      href: "/dashboard/audits",
+      title: "We Ask the AI",
+      description: "We ask ChatGPT, Gemini and Perplexity those questions and record who gets recommended.",
+      href: "/audit",
     },
     {
       number: "03",
-      title: "Identify Issues",
-      description: "Get a detailed breakdown of missing schemas, bad FAQs, and structure gaps.",
-      href: "/dashboard/audits",
+      title: "Find the Gaps",
+      description: "We check your schema markup, FAQs and business details, and list what's missing.",
+      href: "/services",
     },
     {
       number: "04",
-      title: "Apply Recommendations",
-      description: "Use our generated JSON-LD and optimized content to fix the issues.",
-      href: "/dashboard/tools",
+      title: "Fix the Gaps",
+      description: "We prepare the schema and FAQ content for your website, ready for you or your developer to add.",
+      href: "/services",
     },
     {
       number: "05",
-      title: "Track Growth",
-      description: "Monitor your visibility score and citations across LLMs over time.",
-      href: "/dashboard/reports",
+      title: "Re-check",
+      description: "After 30 days we ask the same questions again, so you can see what changed.",
+      href: "/contact",
     },
   ];
 
@@ -133,7 +133,7 @@ export function HowItWorks() {
               The Path to <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">Visibility</span>
             </h2>
             <p className="max-w-[900px] text-gray-400 md:text-xl font-light">
-              Five simple steps to future-proof your digital presence in 3D.
+              From a free check to being named in AI answers, in five steps.
             </p>
           </div>
         </motion.div>

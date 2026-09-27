@@ -7,6 +7,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { BackgroundWrapper } from "@/components/BackgroundWrapper";
+import { SITE_URL, CONTACT_EMAIL } from "@/lib/site";
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 
 export const metadata: Metadata = {
@@ -15,34 +16,23 @@ export const metadata: Metadata = {
   },
   title: "Citexa-AI | AI Search Visibility Platform",
   description: "Citexa-AI helps businesses improve visibility across ChatGPT, Gemini, Claude, Perplexity, Copilot and Google AI Overviews through AI Search Optimization and Answer Engine Optimization.",
-  metadataBase: new URL('https://citexa-ai.online'),
-  alternates: {
-    canonical: '/',
-  },
+  metadataBase: new URL(SITE_URL),
   openGraph: {
     title: 'Citexa-AI | AI Search Visibility Platform',
-    description: 'Optimize your website for ChatGPT, Gemini, and Claude.',
-    url: 'https://citexa-ai.online',
+    description: 'Find out whether ChatGPT, Gemini and Perplexity recommend your business, and fix the gaps.',
     siteName: 'Citexa-AI',
-    images: [
-      {
-        url: '/og-image.jpg',
-        width: 1200,
-        height: 630,
-      },
-    ],
     locale: 'en_US',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Citexa-AI | AI Search Visibility',
-    description: 'Optimize your website for ChatGPT, Gemini, and Claude.',
+    description: 'Find out whether ChatGPT, Gemini and Perplexity recommend your business, and fix the gaps.',
   },
   authors: [
     {
       name: "Ajay Adhikari",
-      url: "https://citexa-ai.online",
+      url: `${SITE_URL}/about`,
     }
   ],
 };
@@ -52,30 +42,26 @@ const jsonLd = {
   "@graph": [
     {
       "@type": "Organization",
-      "@id": "https://citexa-ai.online/#organization",
+      "@id": `${SITE_URL}/#organization`,
       "name": "Citexa-AI",
-      "url": "https://citexa-ai.online",
+      "url": `${SITE_URL}`,
       "logo": {
         "@type": "ImageObject",
-        "@id": "https://citexa-ai.online/#logo",
-        "url": "https://citexa-ai.online/logo.png",
-        "contentUrl": "https://citexa-ai.online/logo.png",
+        "@id": `${SITE_URL}/#logo`,
+        "url": `${SITE_URL}/logo.png`,
+        "contentUrl": `${SITE_URL}/logo.png`,
         "caption": "Citexa-AI Logo"
       },
       "image": {
-        "@id": "https://citexa-ai.online/#logo"
+        "@id": `${SITE_URL}/#logo`
       },
       "founder": {
         "@type": "Person",
-        "@id": "https://citexa-ai.online/#founder",
+        "@id": `${SITE_URL}/#founder`,
         "name": "Ajay Adhikari",
         "jobTitle": "Founder & CEO",
-        "url": "https://citexa-ai.online/about",
-        "email": "ajay@citexa-ai.com",
-        "alumniOf": {
-          "@type": "EducationalOrganization",
-          "name": "B.Tech in Computer Science and Engineering (Artificial Intelligence and Machine Learning)"
-        },
+        "url": `${SITE_URL}/about`,
+        ...(CONTACT_EMAIL ? { "email": CONTACT_EMAIL } : {}),
         "sameAs": [
           "https://github.com/ajay5248",
           "https://www.linkedin.com/in/ajay-adhikari-419a3b320/"
@@ -93,14 +79,16 @@ const jsonLd = {
       },
       "foundingDate": "2026",
       "legalName": "Citexa-AI Technologies",
-      "email": "support@citexa-ai.online",
-      "contactPoint": {
-        "@type": "ContactPoint",
-        "email": "support@citexa-ai.online",
-        "contactType": "customer support"
-      },
+      ...(CONTACT_EMAIL ? {
+        "email": CONTACT_EMAIL,
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "email": CONTACT_EMAIL,
+          "contactType": "customer support",
+          "url": `${SITE_URL}/contact`
+        },
+      } : {}),
       "sameAs": [
-        "https://twitter.com/citexa-ai",
         "https://linkedin.com/company/citexa-ai"
       ],
       "description": "Citexa-AI helps businesses improve visibility across AI search engines through Answer Engine Optimization.",
@@ -116,24 +104,24 @@ const jsonLd = {
     },
     {
       "@type": "WebSite",
-      "@id": "https://citexa-ai.online/#website",
-      "url": "https://citexa-ai.online",
+      "@id": `${SITE_URL}/#website`,
+      "url": `${SITE_URL}`,
       "name": "Citexa-AI",
       "description": "AI Search Visibility Platform",
       "publisher": {
-        "@id": "https://citexa-ai.online/#organization"
+        "@id": `${SITE_URL}/#organization`
       }
     },
     {
       "@type": "WebPage",
-      "@id": "https://citexa-ai.online/#webpage",
-      "url": "https://citexa-ai.online",
+      "@id": `${SITE_URL}/#webpage`,
+      "url": `${SITE_URL}`,
       "name": "Citexa-AI | AI Search Visibility Platform",
       "isPartOf": {
-        "@id": "https://citexa-ai.online/#website"
+        "@id": `${SITE_URL}/#website`
       },
       "about": {
-        "@id": "https://citexa-ai.online/#organization"
+        "@id": `${SITE_URL}/#organization`
       },
       "description": "Citexa-AI helps businesses improve visibility across ChatGPT, Gemini, Claude, Perplexity, Copilot and Google AI Overviews through AI Search Optimization and Answer Engine Optimization."
     }

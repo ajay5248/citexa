@@ -12,7 +12,7 @@ interface FAQItem {
 const faqs: FAQItem[] = [
   {
     question: "What is Citexa-AI?",
-    answer: "Citexa-AI is an AI Search Visibility and Answer Engine Optimization (AEO) platform. It helps businesses track, audit, and improve how their brand is recommended and cited across Generative AI search systems like ChatGPT, Google Gemini, Claude, Perplexity, and Microsoft Copilot.",
+    answer: "Citexa-AI helps businesses get recommended by AI search engines like ChatGPT, Google Gemini and Perplexity. We check what these tools say when your customers ask for a recommendation, find the gaps on your website (such as missing schema markup or unclear FAQs), and help you fix them. This is called Answer Engine Optimization (AEO).",
   },
   {
     question: "How does Answer Engine Optimization (AEO) work?",
@@ -24,7 +24,7 @@ const faqs: FAQItem[] = [
   },
   {
     question: "How can I run a free AI Search Visibility audit for my site?",
-    answer: "You can sign up on Citexa-AI and enter your website's URL. Our engine will crawl your pages, evaluate your schema structure, check readability, and simulate AI search queries to generate a comprehensive AI Search Visibility audit report with actionable fixes.",
+    answer: "Go to the Free Audit page and enter your website and contact details. We ask ChatGPT, Gemini and Perplexity the questions your customers ask, check your website's schema markup and FAQs, and send you the results with the top 3 fixes within 2 working days. No account is needed.",
   },
 ];
 

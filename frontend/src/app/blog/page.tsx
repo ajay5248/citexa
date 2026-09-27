@@ -19,7 +19,7 @@ export default function BlogPage() {
     { 
       title: "The Rise of Answer Engine Optimization", 
       date: "Jun 24, 2026", 
-      excerpt: "Why traditional SEO is dying and how AEO is taking its place in the era of LLMs.",
+      excerpt: "How AI answers change the way customers find businesses, and what Answer Engine Optimization adds to SEO.",
       content: [
         "Traditional Search Engine Optimization (SEO) has focused on keywords, backlinks, and search engine results pages (SERPs) containing ten blue links. However, the rise of LLMs and conversational agents (like ChatGPT, Gemini, and Perplexity) has shifted search towards direct, synthesized answers.",
         "This shift is known as Answer Engine Optimization (AEO). AI answer engines do not simply direct users to a link; they crawl the web, synthesize insights from multiple sources, and present a unified summary with direct inline citations.",
@@ -32,18 +32,18 @@ export default function BlogPage() {
       excerpt: "A step-by-step guide to structuring your FAQ pages so AI models can digest them.",
       content: [
         "Search crawlers use structured data to verify facts and entities. Among various schema markup styles, FAQPage schema in JSON-LD format is one of the most powerful instruments for AEO.",
-        "When an LLM search engine indexes an FAQ, it maps questions and answers directly into its RAG (Retrieval-Augmented Generation) context window. This makes your page highly likely to be selected as a source when a user asks a matching question.",
+        "AI search engines look for pages that answer a question clearly and directly. A well-written FAQ, with matching FAQPage schema, makes it easier for them to understand your answers and use your page as a source when a user asks a matching question.",
         "Always keep answers concise, objective, and structured. Use JSON-LD format in your site header, verify it using search console diagnostics, and align the schema content with the visible text on the page to prevent indexing penalties."
       ]
     },
     { 
-      title: "Understanding AI Search Visibility Scores", 
+      title: "What Makes AI Recommend a Business?", 
       date: "Jun 12, 2026", 
-      excerpt: "What goes into calculating your AI readiness and how you can improve it today.",
+      excerpt: "What we look at when we check whether AI search engines are likely to recommend your business.",
       content: [
-        "At Citexa-AI, we evaluate your digital presence using four core indexes: Overall AEO Score, Schema Score, Content Readiness, and Citation Velocity.",
-        "Your Schema Score tests the implementation of semantic headers and JSON-LD data. Content Readiness evaluates search authority, checking if your articles contain direct answers to natural language questions.",
-        "Citation Velocity tracks how often your brand is mentioned across authoritative domains and public wikis. Improving these metrics ensures that when LLM search engines synthesize answers, your brand receives the citation."
+        "When we check a business, we look at three things: what AI search engines actually say when customers ask for a recommendation, how well the website describes the business in structured data, and whether the content directly answers the questions customers ask.",
+        "Structured data (JSON-LD schema such as Organization, LocalBusiness and FAQPage) tells AI engines who you are, what you offer and where you are. Content readiness means your pages answer real customer questions in plain, direct sentences.",
+        "Mentions of your business on other trusted websites, directories and listings also matter, because AI engines draw on many sources. None of this guarantees a recommendation, since AI answers vary, but each fix makes it easier for AI engines to understand and trust your business."
       ]
     },
   ];

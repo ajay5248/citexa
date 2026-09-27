@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { motion } from "framer-motion";
@@ -85,7 +86,7 @@ export default function PrivacyPage() {
               <div>
                 <h2 className="text-2xl md:text-3xl font-black text-white mb-4 drop-shadow-md">4. Your Data Rights</h2>
                 <p className="text-gray-300 leading-relaxed text-base md:text-lg font-light">
-                  You have the right to access, rectify, or erase the personal data we store about you. You can also object to or restrict processing. To make a request, please contact us at <strong>support@citexa-ai.online</strong>.
+                  You have the right to access, rectify, or erase the personal data we store about you. You can also object to or restrict processing. To make a request, please contact us through our <Link href="/contact" className="text-primary hover:underline">contact page</Link>.
                 </p>
               </div>
 

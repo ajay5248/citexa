@@ -11,7 +11,7 @@ export function Sidebar() {
   const router = useRouter();
   const [isAdmin, setIsAdmin] = useState(false);
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" && (window.location.hostname.includes("localhost") || window.location.hostname.includes("127.0.0.1")) ? "/api" : "https://citexa-ai.onrender.com");
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" && (window.location.hostname.includes("localhost") || window.location.hostname.includes("127.0.0.1")) ? "/api" : "https://citexa.onrender.com");
 
   useEffect(() => {
     const fetchUser = async () => {

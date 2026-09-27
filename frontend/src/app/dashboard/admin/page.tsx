@@ -29,6 +29,17 @@ interface UserSummary {
   created_at: string;
 }
 
+interface Lead {
+  id: number;
+  name: string | null;
+  email: string | null;
+  phone: string | null;
+  website: string | null;
+  message: string | null;
+  source: string | null;
+  created_at: string;
+}
+
 interface AdminStats {
   total_users: number;
   total_websites: number;
@@ -37,10 +48,17 @@ interface AdminStats {
   users: UserSummary[];
 }
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" && (window.location.hostname.includes("localhost") || window.location.hostname.includes("127.0.0.1")) ? "/api" : "https://citexa-ai.onrender.com");
+// Indian numbers are often entered without the country code
+const whatsappHref = (phone: string) => {
+  const digits = phone.replace(/\D/g, "");
+  return `https://wa.me/${digits.length === 10 ? `91${digits}` : digits}`;
+};
+
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" && (window.location.hostname.includes("localhost") || window.location.hostname.includes("127.0.0.1")) ? "/api" : "https://citexa.onrender.com");
 
 export default function AdminPanel() {
   const [stats, setStats] = useState<AdminStats | null>(null);
+  const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -71,6 +89,15 @@ export default function AdminPanel() {
 
         const data = await res.json();
         setStats(data);
+
+        const leadsRes = await fetch(`${apiUrl}/admin/leads`, {
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
+        if (leadsRes.ok) {
+          setLeads(await leadsRes.json());
+        }
       } catch (err) {
         console.error(err);
         setError(err instanceof Error ? err.message : "An error occurred");
@@ -193,6 +220,57 @@ export default function AdminPanel() {
             </CardContent>
           </Card>
         </motion.div>
+      </motion.div>
+
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.25 }}
+        className="rounded-xl border border-white/10 bg-card/40 backdrop-blur-md overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.12)] mt-8 relative"
+      >
+        <div className="p-4 border-b border-white/10 bg-black/20">
+          <h3 className="text-lg font-semibold text-white">Leads ({leads.length})</h3>
+          <p className="text-xs text-gray-500">Free audit requests and contact form messages.</p>
+        </div>
+        {leads.length === 0 ? (
+          <p className="p-6 text-sm text-gray-400">No leads yet.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-white/10 hover:bg-transparent">
+                  <TableHead className="text-gray-300 font-medium">Received</TableHead>
+                  <TableHead className="text-gray-300 font-medium">Type</TableHead>
+                  <TableHead className="text-gray-300 font-medium">Name</TableHead>
+                  <TableHead className="text-gray-300 font-medium">Contact</TableHead>
+                  <TableHead className="text-gray-300 font-medium">Website</TableHead>
+                  <TableHead className="text-gray-300 font-medium">Message</TableHead>
+                </TableRow>
+              </TableHeader>
+              <tbody className="divide-y divide-white/5">
+                {leads.map((lead) => (
+                  <TableRow key={lead.id} className="border-white/5 hover:bg-white/5 align-top">
+                    <TableCell className="text-gray-400 text-sm whitespace-nowrap">{new Date(/[zZ]|[+-]\d\d:\d\d$/.test(lead.created_at) ? lead.created_at : `${lead.created_at}Z`).toLocaleString()}</TableCell>
+                    <TableCell>
+                      <span className={`px-2 py-0.5 rounded-md text-xs font-semibold whitespace-nowrap ${lead.source === 'free-audit' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'}`}>
+                        {lead.source === 'free-audit' ? 'FREE AUDIT' : 'CONTACT'}
+                      </span>
+                    </TableCell>
+                    <TableCell className="font-medium text-white">{lead.name}</TableCell>
+                    <TableCell className="text-gray-400 text-sm">
+                      {lead.email && <div><a href={`mailto:${lead.email}`} className="hover:text-primary">{lead.email}</a></div>}
+                      {lead.phone && <div><a href={whatsappHref(lead.phone)} target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">{lead.phone}</a></div>}
+                    </TableCell>
+                    <TableCell className="text-gray-400 text-sm">
+                      {lead.website && /^https?:\/\//i.test(lead.website) && <a href={lead.website} target="_blank" rel="noopener noreferrer" className="hover:text-primary break-all">{lead.website}</a>}
+                    </TableCell>
+                    <TableCell className="text-gray-400 text-sm max-w-xs whitespace-pre-wrap">{lead.message}</TableCell>
+                  </TableRow>
+                ))}
+              </tbody>
+            </Table>
+          </div>
+        )}
       </motion.div>
 
       <motion.div 

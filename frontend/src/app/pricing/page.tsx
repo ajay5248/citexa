@@ -72,9 +72,9 @@ export default function PricingPage() {
 
               <div className="mb-8">
                 <h3 className="text-2xl font-bold text-white mb-2">Public Beta</h3>
-                <p className="text-gray-400">Available to all web operators.</p>
+                <p className="text-gray-400">Free while we&apos;re in beta.</p>
                 <div className="mt-6 text-5xl font-black text-white">
-                  $0<span className="text-xl text-gray-500 font-normal">/forever</span>
+                  $0<span className="text-xl text-gray-500 font-normal">/during beta</span>
                 </div>
               </div>
               <ul className="space-y-4 mb-8 flex-1">
@@ -108,7 +108,7 @@ export default function PricingPage() {
 
               <div className="mb-8">
                 <h3 className="text-3xl font-black text-zinc-300 mb-2">Pro</h3>
-                <p className="text-zinc-500">For professional marketing campaigns.</p>
+                <p className="text-zinc-500">For agencies and teams managing many websites.</p>
                 <div className="mt-6 text-6xl font-black text-zinc-400">
                   --<span className="text-xl text-zinc-600 font-normal">/mo</span>
                 </div>
