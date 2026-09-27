@@ -41,15 +41,19 @@ def _initialize_db():
         # reports which database is in use. SQLite is the normal choice for local development.
         engine_instance = None
         if SQLALCHEMY_DATABASE_URL and not SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
+            # Keep startup fast: Render's free tier must bind the port quickly on deploy and when
+            # waking from sleep. Retries are only worth the wait when the database is required.
+            require_database = os.getenv("REQUIRE_DATABASE", "").lower() == "true"
+            attempts = 3 if require_database else 1
             engine_instance = create_engine(
                 SQLALCHEMY_DATABASE_URL,
                 pool_pre_ping=True,
                 pool_size=5,
                 max_overflow=10,
-                connect_args={"connect_timeout": 10}
+                connect_args={"connect_timeout": 5}
             )
             last_error = None
-            for attempt in range(1, 4):
+            for attempt in range(1, attempts + 1):
                 try:
                     with engine_instance.connect():
                         pass
@@ -58,12 +62,13 @@ def _initialize_db():
                     break
                 except Exception as e:
                     last_error = e
-                    print(f"DATABASE: PostgreSQL connection attempt {attempt}/3 failed: {e}")
-                    time.sleep(2 * attempt)
+                    print(f"DATABASE: PostgreSQL connection attempt {attempt}/{attempts} failed: {e}")
+                    if attempt < attempts:
+                        time.sleep(2 * attempt)
             if last_error is not None:
                 # Once production has a working database, set REQUIRE_DATABASE=true so an outage
                 # stops the app instead of silently running on a temporary SQLite file.
-                if os.getenv("REQUIRE_DATABASE", "").lower() == "true":
+                if require_database:
                     raise RuntimeError(
                         "Could not connect to the PostgreSQL database in DATABASE_URL. "
                         "Refusing to fall back to SQLite, which would lose data on every deploy."
