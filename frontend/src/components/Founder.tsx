@@ -159,7 +159,7 @@ export function Founder() {
                   {/* Image wrapper */}
                   <div className="relative w-full h-[83%] rounded-[18px] overflow-hidden border border-white/5 bg-neutral-900">
                     <Image 
-                      src="/founder.jpg" 
+                      src="/founder-ajay.jpg" 
                       alt="Ajay Adhikari" 
                       fill
                       priority
