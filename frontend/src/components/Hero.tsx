@@ -47,10 +47,10 @@ export function Hero() {
                 transition={{ duration: 1, delay: 0.4 }}
                 className="flex flex-col sm:flex-row gap-4 mt-8"
               >
-                <Link href="/audit">
+                <Link href="/#check">
                   <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                     <Button size="lg" className="w-full sm:w-auto h-12 px-6 bg-[#2b88ff] hover:bg-blue-600 text-white rounded-lg font-medium border-none shadow-none">
-                      Get my free AI visibility check
+                      Check my website now
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </motion.div>

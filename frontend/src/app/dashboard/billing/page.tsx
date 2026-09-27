@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Check, Loader2, Sparkles, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { getApiUrl } from "@/lib/site";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -20,7 +21,7 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
 };
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" && (window.location.hostname.includes("localhost") || window.location.hostname.includes("127.0.0.1")) ? "/api" : "https://citexa.onrender.com");
+const apiUrl = getApiUrl();
 
 export default function Billing() {
   const [activePlan, setActivePlan] = useState<string>("free");

@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, FileSearch, DollarSign, Loader2, ShieldAlert } from "lucide-react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { getApiUrl } from "@/lib/site";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -40,6 +41,19 @@ interface Lead {
   created_at: string;
 }
 
+interface Purchase {
+  id: number;
+  plan_id: string;
+  amount_paise: number;
+  name: string | null;
+  email: string | null;
+  phone: string | null;
+  website: string | null;
+  status: string;
+  razorpay_payment_id: string | null;
+  created_at: string;
+}
+
 interface AdminStats {
   total_users: number;
   total_websites: number;
@@ -48,17 +62,25 @@ interface AdminStats {
   users: UserSummary[];
 }
 
+const PLAN_LABELS: Record<string, string> = {
+  report: "Report",
+  audit_fix: "Audit + Fix",
+  starter_monthly: "Monthly Starter",
+  monthly: "Monthly Monitoring",
+};
+
 // Indian numbers are often entered without the country code
 const whatsappHref = (phone: string) => {
   const digits = phone.replace(/\D/g, "");
   return `https://wa.me/${digits.length === 10 ? `91${digits}` : digits}`;
 };
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" && (window.location.hostname.includes("localhost") || window.location.hostname.includes("127.0.0.1")) ? "/api" : "https://citexa.onrender.com");
+const apiUrl = getApiUrl();
 
 export default function AdminPanel() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [leads, setLeads] = useState<Lead[]>([]);
+  const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -97,6 +119,15 @@ export default function AdminPanel() {
         });
         if (leadsRes.ok) {
           setLeads(await leadsRes.json());
+        }
+
+        const purchasesRes = await fetch(`${apiUrl}/admin/purchases`, {
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
+        if (purchasesRes.ok) {
+          setPurchases(await purchasesRes.json());
         }
       } catch (err) {
         console.error(err);
@@ -222,6 +253,58 @@ export default function AdminPanel() {
         </motion.div>
       </motion.div>
 
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        className="rounded-xl border border-white/10 bg-card/40 backdrop-blur-md overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.12)] mt-8 relative"
+      >
+        <div className="p-4 border-b border-white/10 bg-black/20">
+          <h3 className="text-lg font-semibold text-white">Payments ({purchases.filter((p) => p.status === "paid" || p.status === "active").length} paid)</h3>
+          <p className="text-xs text-gray-500">Razorpay checkouts. &quot;created&quot; means the buyer opened checkout but hasn&apos;t paid.</p>
+        </div>
+        {purchases.length === 0 ? (
+          <p className="p-6 text-sm text-gray-400">No payments yet.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-white/10 hover:bg-transparent">
+                  <TableHead className="text-gray-300 font-medium">Date</TableHead>
+                  <TableHead className="text-gray-300 font-medium">Package</TableHead>
+                  <TableHead className="text-gray-300 font-medium">Amount</TableHead>
+                  <TableHead className="text-gray-300 font-medium">Status</TableHead>
+                  <TableHead className="text-gray-300 font-medium">Buyer</TableHead>
+                  <TableHead className="text-gray-300 font-medium">Website</TableHead>
+                </TableRow>
+              </TableHeader>
+              <tbody className="divide-y divide-white/5">
+                {purchases.map((purchase) => (
+                  <TableRow key={purchase.id} className="border-white/5 hover:bg-white/5 align-top">
+                    <TableCell className="text-gray-400 text-sm whitespace-nowrap">{new Date(/[zZ]|[+-]\d\d:\d\d$/.test(purchase.created_at) ? purchase.created_at : `${purchase.created_at}Z`).toLocaleString()}</TableCell>
+                    <TableCell className="text-white text-sm">{PLAN_LABELS[purchase.plan_id] ?? purchase.plan_id}</TableCell>
+                    <TableCell className="text-gray-300 text-sm whitespace-nowrap">₹{(purchase.amount_paise / 100).toLocaleString("en-IN")}</TableCell>
+                    <TableCell>
+                      <span className={`px-2 py-0.5 rounded-md text-xs font-semibold uppercase ${purchase.status === "paid" || purchase.status === "active" ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" : "bg-white/5 text-gray-400 border border-white/10"}`}>
+                        {purchase.status}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-gray-400 text-sm">
+                      <div className="text-white">{purchase.name}</div>
+                      {purchase.email && <div><a href={`mailto:${purchase.email}`} className="hover:text-primary">{purchase.email}</a></div>}
+                      {purchase.phone && <div><a href={whatsappHref(purchase.phone)} target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">{purchase.phone}</a></div>}
+                    </TableCell>
+                    <TableCell className="text-gray-400 text-sm">
+                      {purchase.website && /^https?:\/\//i.test(purchase.website) && <a href={purchase.website} target="_blank" rel="noopener noreferrer" className="hover:text-primary break-all">{purchase.website}</a>}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </tbody>
+            </Table>
+          </div>
+        )}
+      </motion.div>
+
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -230,7 +313,7 @@ export default function AdminPanel() {
       >
         <div className="p-4 border-b border-white/10 bg-black/20">
           <h3 className="text-lg font-semibold text-white">Leads ({leads.length})</h3>
-          <p className="text-xs text-gray-500">Free audit requests and contact form messages.</p>
+          <p className="text-xs text-gray-500">UPI orders, free audit requests, instant-check email unlocks and contact form messages.</p>
         </div>
         {leads.length === 0 ? (
           <p className="p-6 text-sm text-gray-400">No leads yet.</p>
@@ -252,8 +335,8 @@ export default function AdminPanel() {
                   <TableRow key={lead.id} className="border-white/5 hover:bg-white/5 align-top">
                     <TableCell className="text-gray-400 text-sm whitespace-nowrap">{new Date(/[zZ]|[+-]\d\d:\d\d$/.test(lead.created_at) ? lead.created_at : `${lead.created_at}Z`).toLocaleString()}</TableCell>
                     <TableCell>
-                      <span className={`px-2 py-0.5 rounded-md text-xs font-semibold whitespace-nowrap ${lead.source === 'free-audit' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'}`}>
-                        {lead.source === 'free-audit' ? 'FREE AUDIT' : 'CONTACT'}
+                      <span className={`px-2 py-0.5 rounded-md text-xs font-semibold whitespace-nowrap ${lead.source === 'order' ? 'bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/30' : lead.source === 'free-audit' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : lead.source === 'mini-audit' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'}`}>
+                        {lead.source === 'order' ? 'UPI ORDER' : lead.source === 'free-audit' ? 'FREE AUDIT' : lead.source === 'mini-audit' ? 'MINI AUDIT' : 'CONTACT'}
                       </span>
                     </TableCell>
                     <TableCell className="font-medium text-white">{lead.name}</TableCell>

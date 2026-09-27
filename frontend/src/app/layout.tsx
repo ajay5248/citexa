@@ -8,6 +8,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { BackgroundWrapper } from "@/components/BackgroundWrapper";
 import { SITE_URL, CONTACT_EMAIL } from "@/lib/site";
+import { JsonLd } from "@/components/JsonLd";
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 
 export const metadata: Metadata = {
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
     google: "ZeCO4ktJ1U1njavxnFKHwx0FScUqSptpU6bE2rD1cR4",
   },
   title: "Citexa-AI | AI Search Visibility Platform",
-  description: "Citexa-AI helps businesses improve visibility across ChatGPT, Gemini, Claude, Perplexity, Copilot and Google AI Overviews through AI Search Optimization and Answer Engine Optimization.",
+  description: "Find out whether ChatGPT, Gemini and Perplexity recommend your business. Citexa-AI checks your AI search visibility and helps you fix the gaps.",
   metadataBase: new URL(SITE_URL),
   openGraph: {
     title: 'Citexa-AI | AI Search Visibility Platform',
@@ -111,19 +112,6 @@ const jsonLd = {
       "publisher": {
         "@id": `${SITE_URL}/#organization`
       }
-    },
-    {
-      "@type": "WebPage",
-      "@id": `${SITE_URL}/#webpage`,
-      "url": `${SITE_URL}`,
-      "name": "Citexa-AI | AI Search Visibility Platform",
-      "isPartOf": {
-        "@id": `${SITE_URL}/#website`
-      },
-      "about": {
-        "@id": `${SITE_URL}/#organization`
-      },
-      "description": "Citexa-AI helps businesses improve visibility across ChatGPT, Gemini, Claude, Perplexity, Copilot and Google AI Overviews through AI Search Optimization and Answer Engine Optimization."
     }
   ]
 };
@@ -138,13 +126,8 @@ export default function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
-      </head>
       <body className={`${inter.className} bg-background text-foreground antialiased`}>
+        <JsonLd data={jsonLd} />
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

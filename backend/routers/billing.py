@@ -85,7 +85,7 @@ def create_checkout_session(
         except Exception as stripe_err:
             raise HTTPException(status_code=500, detail=f"Failed to create Stripe customer: {str(stripe_err)}")
 
-    # Frontend URL base (e.g. localhost:3000 or citexa-ai.online)
+    # Frontend URL base (e.g. http://localhost:3000 or https://www.citexa.online)
     frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
 
     try:
@@ -111,6 +111,11 @@ def simulate_checkout_success(
     current_user: schemas.User = Depends(auth.get_current_user),
     db: Session = Depends(database.get_db)
 ):
+    # This endpoint upgrades the caller's plan without any payment, so it only works when explicitly
+    # enabled for local testing. Real payments go through /payments (Razorpay).
+    if os.getenv("ALLOW_SIMULATED_BILLING") != "true":
+        raise HTTPException(status_code=403, detail="Simulated checkout is disabled")
+
     plan_name = request.plan_name.lower()
     if plan_name not in ["free", "starter", "pro", "enterprise"]:
         raise HTTPException(status_code=400, detail="Invalid plan name")

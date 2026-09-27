@@ -56,6 +56,9 @@ async def lifespan(app: FastAPI):
                     conn.execute(text("ALTER TABLE contact_messages ADD COLUMN source VARCHAR DEFAULT 'contact'"))
         except Exception as mig_err:
             print(f"DATABASE AUTO-MIGRATION WARNING: Failed to auto-migrate. Error: {mig_err}")
+    except RuntimeError:
+        # Database unreachable: stop the app so the deploy fails visibly instead of running without data
+        raise
     except Exception as db_err:
         print(f"DATABASE INITIALIZATION WARNING: Failed to initialize database tables on startup. Error: {db_err}")
     yield
@@ -88,7 +91,8 @@ def read_root():
 
 @app.get("/health")
 def health_check():
-    return {"status": "ok"}
+    # Reports which database engine is in use so a silent SQLite deployment is easy to spot
+    return {"status": "ok", "database": database.engine.dialect.name}
 
 @app.post("/users", response_model=schemas.User)
 def create_user(user: schemas.UserCreate, db: Session = Depends(database.get_db)):
@@ -165,7 +169,7 @@ def update_user_me(user_update: schemas.UserUpdate, db: Session = Depends(databa
     db.refresh(db_user)
     return db_user
 
-from routers import audits, tools, websites, competitors, reports, billing, admin, contact
+from routers import audits, tools, websites, competitors, reports, billing, admin, contact, payments, mini_audit
 
 app.include_router(audits.router)
 app.include_router(tools.router)
@@ -175,9 +179,14 @@ app.include_router(reports.router)
 app.include_router(billing.router)
 app.include_router(admin.router)
 app.include_router(contact.router)
+app.include_router(payments.router)
+app.include_router(mini_audit.router)
 
 @app.get("/debug-db")
-def debug_db():
+def debug_db(current_user: schemas.User = Depends(auth.get_current_user)):
+    # Exposes table contents, so admins only
+    if current_user.role != "admin":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admins only")
     from sqlalchemy import text
     db = database.SessionLocal()
     try:

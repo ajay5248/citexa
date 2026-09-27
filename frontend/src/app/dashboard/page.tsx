@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { getApiUrl } from "@/lib/site";
 
 interface Website {
   id: number;
@@ -39,7 +40,7 @@ export default function Dashboard() {
           return;
         }
 
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" && (window.location.hostname.includes("localhost") || window.location.hostname.includes("127.0.0.1")) ? "/api" : "https://citexa.onrender.com");
+        const apiUrl = getApiUrl();
 
         const [websitesRes, auditsRes] = await Promise.all([
           fetch(`${apiUrl}/websites/`, { headers: { "Authorization": `Bearer ${token}` } }),

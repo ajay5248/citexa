@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Trash2, Loader2, Play } from "lucide-react";
 import { motion } from "framer-motion";
+import { getApiUrl } from "@/lib/site";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -26,7 +27,7 @@ interface Website {
   created_at: string;
 }
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" && (window.location.hostname.includes("localhost") || window.location.hostname.includes("127.0.0.1")) ? "/api" : "https://citexa.onrender.com");
+const apiUrl = getApiUrl();
 
 export default function Websites() {
   const [websites, setWebsites] = useState<Website[]>([]);

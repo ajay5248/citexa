@@ -16,7 +16,10 @@ router = APIRouter(
 )
 
 API_KEY = os.getenv("LLM_API_KEY") or os.getenv("OPENAI_API_KEY")
-client = OpenAI(api_key=API_KEY or "dummy_key")
+# Any OpenAI-compatible provider works. For a free option, use a Google AI Studio key with
+# LLM_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai/ and e.g. LLM_MODEL=gemini-3.8-flash
+LLM_MODEL = os.getenv("LLM_MODEL", "gpt-4o-mini")
+client = OpenAI(api_key=API_KEY or "dummy_key", base_url=os.getenv("LLM_BASE_URL") or None)
 
 class FAQRequest(BaseModel):
     url: Optional[str] = None
@@ -157,7 +160,7 @@ def generate_faq(request: FAQRequest, db: Session = Depends(database.get_db), cu
             """
             
             response = client.chat.completions.create(
-                model="gpt-4o-mini",
+                model=LLM_MODEL,
                 messages=[{"role": "user", "content": prompt}],
                 response_format={ "type": "json_object" }
             )
@@ -284,7 +287,7 @@ def generate_schema(request: SchemaRequest, db: Session = Depends(database.get_d
     """
     try:
         response = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model=LLM_MODEL,
             messages=[{"role": "user", "content": prompt}],
             response_format={ "type": "json_object" }
         )

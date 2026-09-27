@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { getApiUrl } from "@/lib/site";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -29,7 +30,7 @@ interface UserProfile {
   subscription_status: string;
 }
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" && (window.location.hostname.includes("localhost") || window.location.hostname.includes("127.0.0.1")) ? "/api" : "https://citexa.onrender.com");
+const apiUrl = getApiUrl();
 
 export default function Settings() {
   const [profile, setProfile] = useState<UserProfile | null>(null);

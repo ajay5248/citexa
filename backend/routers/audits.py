@@ -1,77 +1,42 @@
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
 import schemas, models, database, auth
-import random
-import time
 import json
 
 router = APIRouter(
     prefix="/audits",
     tags=["audits"],
-    dependencies=[Depends(auth.get_current_user)], # Wait, we don't have get_current_user in auth.py, we have it in main.py.
+    dependencies=[Depends(auth.get_current_user)],
 )
 
-import wikipedia
-from openai import OpenAI
-import os
-# Trigger reload
+from site_checker import CheckError, category_score, failed_checks, run_checks
 
-# Use a dummy key if not provided so the app starts without crashing
-API_KEY = os.getenv("LLM_API_KEY") or os.getenv("OPENAI_API_KEY")
-client = OpenAI(api_key=API_KEY or "dummy_key_to_prevent_crash")
 
 def perform_real_audit(audit_id: int, url: str):
+    """Runs the rule-based AI-readiness checks on the website's homepage and stores the scores."""
     db = database.SessionLocal()
     try:
         db_audit = db.query(models.Audit).filter(models.Audit.id == audit_id).first()
         if not db_audit: return
-        
-        # Extract basic keywords from the URL to search Wikipedia
-        keyword = url.replace("https://", "").replace("http://", "").replace("www.", "").split(".")[0]
-        
-        try:
-            wiki_summary = wikipedia.summary(keyword, sentences=2)
-        except:
-            wiki_summary = f"No direct Wikipedia entry found for {keyword}. Recommend establishing digital presence."
 
-        # RAG prompt to LLM
-        prompt = f"""
-        You are an Answer Engine Optimization (AEO) expert auditor. 
-        Please audit the following entity based on this RAG context retrieved from Wikipedia:
-        Entity/URL: {url}
-        Wikipedia Context: {wiki_summary}
-        
-        Provide a JSON response with the following keys EXACTLY:
-        "overall_score": (float 0-100),
-        "schema_score": (float 0-100),
-        "content_score": (float 0-100),
-        "citation_score": (float 0-100),
-        "recommendations": (list of 3 strings for improving AEO)
-        """
-        
-        if not API_KEY:
-            # Fallback if no API key is provided
-            response_json = {
-                "overall_score": 75.0,
-                "schema_score": 60.0,
-                "content_score": 80.0,
-                "citation_score": 50.0,
-                "recommendations": ["Add LLM API Key to .env to generate real recommendations", "Add FAQPage schema", "Increase citation velocity"]
-            }
-        else:
-            response = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[{"role": "user", "content": prompt}],
-                response_format={ "type": "json_object" }
-            )
-            response_json = json.loads(response.choices[0].message.content)
+        try:
+            result = run_checks(url)
+        except CheckError as e:
+            db_audit.status = "failed"
+            db_audit.audit_data = json.dumps({"error": str(e)})
+            db.commit()
+            return
 
         db_audit.status = "completed"
-        db_audit.overall_score = response_json.get("overall_score", 0.0)
-        db_audit.schema_score = response_json.get("schema_score", 0.0)
-        db_audit.content_score = response_json.get("content_score", 0.0)
-        db_audit.citation_score = response_json.get("citation_score", 0.0)
-        db_audit.audit_data = json.dumps({"recommendations": response_json.get("recommendations", [])})
+        db_audit.overall_score = float(result["score"])
+        db_audit.schema_score = category_score(result, "schema")
+        db_audit.content_score = category_score(result, "content")
+        # Stored in citation_score for compatibility; it measures AI crawler access, not citations
+        db_audit.citation_score = category_score(result, "access")
+        db_audit.audit_data = json.dumps({
+            "recommendations": [c["fix"] for c in failed_checks(result)[:3]],
+            "checks": result["checks"],
+        })
         db.commit()
     except Exception as e:
         db.rollback()

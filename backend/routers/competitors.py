@@ -1,21 +1,16 @@
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, status
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import List, Optional
-import os
 import json
-import wikipedia
-from openai import OpenAI
 import schemas, models, database, auth
+from site_checker import CheckError, failed_checks, run_checks
 
 router = APIRouter(
     prefix="/competitors",
     tags=["competitors"],
     dependencies=[Depends(auth.get_current_user)],
 )
-
-API_KEY = os.getenv("LLM_API_KEY") or os.getenv("OPENAI_API_KEY")
-client = OpenAI(api_key=API_KEY or "dummy_key")
 
 class CompetitorResponse(schemas.Competitor):
     pass
@@ -31,59 +26,40 @@ def get_competitors(website_id: int, db: Session = Depends(database.get_db), cur
     return competitors
 
 def analyze_competitor_bg(competitor_id: int, my_url: str, comp_url: str):
+    """Runs the rule-based checks on both homepages and compares them."""
     db = database.SessionLocal()
     try:
         db_comp = db.query(models.Competitor).filter(models.Competitor.id == competitor_id).first()
         if not db_comp: return
-        
-        # Extract keywords
-        my_keyword = my_url.replace("https://", "").replace("http://", "").replace("www.", "").split(".")[0]
-        comp_keyword = comp_url.replace("https://", "").replace("http://", "").replace("www.", "").split(".")[0]
-        
-        try:
-            my_wiki = wikipedia.summary(my_keyword, sentences=2)
-        except:
-            my_wiki = f"No direct Wikipedia entry found for {my_keyword}."
-            
-        try:
-            comp_wiki = wikipedia.summary(comp_keyword, sentences=2)
-        except:
-            comp_wiki = f"No direct Wikipedia entry found for {comp_keyword}."
 
-        prompt = f"""
-        You are an Answer Engine Optimization (AEO) and SEO expert analyst.
-        Compare these two entities based on their Wikipedia context:
-        
-        My Website: {my_url}
-        Context: {my_wiki}
-        
-        Competitor: {comp_url}
-        Context: {comp_wiki}
-        
-        Provide a JSON response with the following keys EXACTLY:
-        "visibility_score": (float 0-100, estimating competitor's AI visibility),
-        "strengths": (list of 2 strings: what competitor does well),
-        "weaknesses": (list of 2 strings: competitor's AEO gaps),
-        "opportunities": (list of 2 strings: how my website can beat them)
-        """
-        
-        if not API_KEY:
-            response_json = {
-                "visibility_score": 85.0,
-                "strengths": ["Strong brand presence", "High citation count"],
-                "weaknesses": ["No FAQ schema", "Poor entity structuring"],
-                "opportunities": ["Implement JSON-LD", "Target long-tail AI queries"]
-            }
-        else:
-            response = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[{"role": "user", "content": prompt}],
-                response_format={ "type": "json_object" }
-            )
-            response_json = json.loads(response.choices[0].message.content)
+        try:
+            mine = run_checks(my_url)
+            theirs = run_checks(comp_url)
+        except CheckError as e:
+            db_comp.analysis_data = json.dumps({"error": str(e)})
+            db.commit()
+            return
 
-        db_comp.visibility_score = response_json.get("visibility_score", 0.0)
-        db_comp.analysis_data = json.dumps(response_json)
+        my_passed = {c["id"] for c in mine["checks"] if c["passed"]}
+        their_passed = {c["id"] for c in theirs["checks"] if c["passed"]}
+        by_weight = sorted(theirs["checks"], key=lambda c: -c["weight"])
+
+        strengths = [c["title"] for c in by_weight if c["id"] in their_passed][:2]
+        weaknesses = [c["title"] for c in by_weight if c["id"] not in their_passed][:2]
+        # Things the competitor does that you don't are the quickest wins
+        opportunities = [c["fix"] for c in by_weight if c["id"] in their_passed and c["id"] not in my_passed][:2]
+        if not opportunities:
+            opportunities = [c["fix"] for c in failed_checks(mine)[:2]]
+
+        analysis = {
+            "visibility_score": float(theirs["score"]),
+            "your_score": float(mine["score"]),
+            "strengths": strengths,
+            "weaknesses": weaknesses,
+            "opportunities": opportunities,
+        }
+        db_comp.visibility_score = analysis["visibility_score"]
+        db_comp.analysis_data = json.dumps(analysis)
         db.commit()
     except Exception as e:
         db.rollback()

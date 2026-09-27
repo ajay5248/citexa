@@ -1,8 +1,4 @@
-const apiUrl = () =>
-  process.env.NEXT_PUBLIC_API_URL ||
-  (typeof window !== "undefined" && (window.location.hostname.includes("localhost") || window.location.hostname.includes("127.0.0.1"))
-    ? "/api"
-    : "https://citexa.onrender.com");
+import { getApiUrl } from "@/lib/site";
 
 export interface LeadInput {
   name: string;
@@ -10,7 +6,7 @@ export interface LeadInput {
   phone?: string;
   website?: string;
   message?: string;
-  source: "contact" | "free-audit";
+  source: "contact" | "free-audit" | "order";
   nickname?: string;
 }
 
@@ -19,7 +15,7 @@ export async function submitLead(lead: LeadInput) {
   // Send empty optional fields as absent so the backend's validation treats them as missing
   const body = Object.fromEntries(Object.entries(lead).filter(([, value]) => value !== ""));
 
-  const res = await fetch(`${apiUrl()}/contact`, {
+  const res = await fetch(`${getApiUrl()}/contact`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),

@@ -100,6 +100,38 @@ class ContactMessage(Base):
     company = Column(String, nullable=True)
     website = Column(String, nullable=True)
     message = Column(Text, nullable=True)
-    source = Column(String, default="contact") # 'contact' or 'free-audit'
+    source = Column(String, default="contact") # 'contact', 'free-audit', 'mini-audit' or 'order' (UPI order)
     is_read = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class Purchase(Base):
+    __tablename__ = "purchases"
+
+    id = Column(Integer, primary_key=True, index=True)
+    plan_id = Column(String, index=True) # 'audit_fix' (one-time) or 'monthly' (subscription)
+    amount_paise = Column(Integer)
+    currency = Column(String, default="INR")
+    name = Column(String)
+    email = Column(String)
+    phone = Column(String)
+    website = Column(String, nullable=True)
+    razorpay_order_id = Column(String, nullable=True, index=True)
+    razorpay_subscription_id = Column(String, nullable=True, index=True)
+    razorpay_payment_id = Column(String, nullable=True)
+    # created -> paid (one-time) or active/halted/cancelled/completed (subscription); failed on payment failure
+    status = Column(String, default="created")
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class PublicAudit(Base):
+    """Result of an anonymous homepage mini-audit; the full report is unlocked with an email address."""
+    __tablename__ = "public_audits"
+
+    id = Column(String, primary_key=True, index=True) # random token, so reports can't be enumerated
+    url = Column(String)
+    score = Column(Integer)
+    result = Column(Text) # JSON from site_checker.run_checks
+    email = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)

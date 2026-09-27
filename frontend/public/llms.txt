@@ -5,7 +5,7 @@
 ## Core Navigation
 - [Home Page](https://www.citexa.online): What Citexa-AI does and how the process works.
 - [Services](https://www.citexa.online/services): AI visibility checks, website readiness reviews, schema markup, FAQ optimization, business listing reviews, competitor comparisons and monthly re-checks.
-- [Pricing](https://www.citexa.online/pricing): The platform is free during public beta.
+- [Pricing](https://www.citexa.online/pricing): Free AI visibility check; one-time AI Visibility Report (₹2,999) or AI Visibility Audit + Fix (₹14,999); Monthly Starter (₹2,499/month) or Monthly AI Visibility Monitoring (₹7,499/month).
 - [About Us](https://www.citexa.online/about): Our mission and team. Founded by Ajay Adhikari.
 - [Free AI Visibility Check](https://www.citexa.online/audit): Request a free, manual check of whether AI search engines recommend your business.
 - [Contact](https://www.citexa.online/contact): Send a message or book a 15-minute call.

@@ -99,3 +99,32 @@ def get_leads(
         )
 
     return db.query(models.ContactMessage).order_by(models.ContactMessage.created_at.desc()).limit(500).all()
+
+
+class PurchaseSummary(BaseModel):
+    id: int
+    plan_id: str
+    amount_paise: int
+    name: Optional[str]
+    email: Optional[str]
+    phone: Optional[str]
+    website: Optional[str]
+    status: str
+    razorpay_payment_id: Optional[str]
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+@router.get("/purchases", response_model=List[PurchaseSummary])
+def get_purchases(
+    current_user: schemas.User = Depends(auth.get_current_user),
+    db: Session = Depends(database.get_db)
+):
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not authorized to view purchases"
+        )
+
+    return db.query(models.Purchase).order_by(models.Purchase.created_at.desc()).limit(500).all()

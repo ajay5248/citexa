@@ -1,7 +1,14 @@
+import os
+from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
 from sqlalchemy.pool import NullPool
 
-url = 'postgresql://postgres.msgslpbvkrykzuzvyusp:%40Ajay5241%23%23@aws-0-ap-south-1.pooler.supabase.com:6543/postgres'
+# Reads the connection string from the environment (or a local .env file); never hard-code it
+load_dotenv()
+url = os.getenv('DATABASE_URL')
+if not url:
+    raise SystemExit('Set DATABASE_URL in your environment or .env file first.')
+
 engine = create_engine(url, poolclass=NullPool)
 try:
     with engine.connect() as conn:

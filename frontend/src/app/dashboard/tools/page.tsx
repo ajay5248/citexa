@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { MessageSquare, Code, Loader2, Database, Download, FileSpreadsheet } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { getApiUrl } from "@/lib/site";
 
 const containerVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -23,7 +24,7 @@ const itemVariants = {
   visible: { opacity: 1, x: 0, transition: { duration: 0.4 } },
 };
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" && (window.location.hostname.includes("localhost") || window.location.hostname.includes("127.0.0.1")) ? "/api" : "https://citexa.onrender.com");
+const apiUrl = getApiUrl();
 
 export default function ToolsPage() {
   const [activeTab, setActiveTab] = useState<"faq" | "schema" | "bulk">("faq");

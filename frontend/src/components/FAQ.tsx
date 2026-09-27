@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { ChevronDown, HelpCircle } from "lucide-react";
 
 interface FAQItem {
@@ -25,6 +25,14 @@ const faqs: FAQItem[] = [
   {
     question: "How can I run a free AI Search Visibility audit for my site?",
     answer: "Go to the Free Audit page and enter your website and contact details. We ask ChatGPT, Gemini and Perplexity the questions your customers ask, check your website's schema markup and FAQs, and send you the results with the top 3 fixes within 2 working days. No account is needed.",
+  },
+  {
+    question: "How much does Citexa-AI cost?",
+    answer: "The AI visibility check is free. The AI Visibility Report is a one-time ₹2,999: we check what ChatGPT, Gemini and Perplexity say about your business and give you a written fix list. The AI Visibility Audit + Fix is a one-time ₹14,999: we also prepare the schema markup and FAQ fixes for your website and re-check after 30 days. For ongoing checks, Monthly Starter is ₹2,499 per month and Monthly AI Visibility Monitoring is ₹7,499 per month.",
+  },
+  {
+    question: "Can you guarantee that ChatGPT will recommend my business?",
+    answer: "No one can honestly guarantee that. AI answers change from one question to the next and between tools. What we guarantee is the work: a clear check of what AI says about you today, the fixes to your website, and a before-and-after comparison using the same questions.",
   },
 ];
 
@@ -81,7 +89,10 @@ export function FAQ() {
                 className="rounded-2xl border border-white/5 bg-white/[0.01] backdrop-blur-xl hover:border-blue-500/20 transition-all duration-300 overflow-hidden"
               >
                 <button
+                  id={`faq-question-${index}`}
                   onClick={() => toggleFAQ(index)}
+                  aria-expanded={isOpen}
+                  aria-controls={`faq-answer-${index}`}
                   className="w-full py-6 px-8 flex items-center justify-between text-left group"
                 >
                   <span className="text-lg md:text-xl font-medium text-gray-200 group-hover:text-white transition-colors">
@@ -96,20 +107,19 @@ export function FAQ() {
                   </motion.div>
                 </button>
 
-                <AnimatePresence initial={false}>
-                  {isOpen && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.3, ease: "easeInOut" }}
-                    >
-                      <div className="px-8 pb-6 text-gray-400 font-light text-base md:text-lg leading-relaxed border-t border-white/[0.03] pt-4 bg-black/20">
-                        {faq.answer}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                {/* Answers are always in the HTML (collapsed with CSS) so search and AI crawlers can read them */}
+                <div
+                  id={`faq-answer-${index}`}
+                  role="region"
+                  aria-labelledby={`faq-question-${index}`}
+                  className={`grid transition-all duration-300 ease-in-out ${isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
+                >
+                  <div className="overflow-hidden">
+                    <div className="px-8 pb-6 text-gray-400 font-light text-base md:text-lg leading-relaxed border-t border-white/[0.03] pt-4 bg-black/20">
+                      {faq.answer}
+                    </div>
+                  </div>
+                </div>
               </div>
             );
           })}

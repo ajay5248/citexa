@@ -5,13 +5,14 @@ import { usePathname, useRouter } from "next/navigation";
 import { LayoutDashboard, Globe, FileSearch, Users, FileText, Settings, CreditCard, Wand2, Shield } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
+import { getApiUrl } from "@/lib/site";
 
 export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const [isAdmin, setIsAdmin] = useState(false);
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" && (window.location.hostname.includes("localhost") || window.location.hostname.includes("127.0.0.1")) ? "/api" : "https://citexa.onrender.com");
+  const apiUrl = getApiUrl();
 
   useEffect(() => {
     const fetchUser = async () => {

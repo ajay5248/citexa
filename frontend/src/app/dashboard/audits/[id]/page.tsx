@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Loader2, ShieldAlert, Sparkles, Code, MessageSquare, BarChart3, HelpCircle } from "lucide-react";
 import { motion } from "framer-motion";
+import { getApiUrl } from "@/lib/site";
 
 export default function AuditDetail() {
   const params = useParams();
@@ -24,7 +25,7 @@ export default function AuditDetail() {
           return;
         }
 
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" && (window.location.hostname.includes("localhost") || window.location.hostname.includes("127.0.0.1")) ? "/api" : "https://citexa.onrender.com");
+        const apiUrl = getApiUrl();
 
         // Fetch specific audit
         const auditRes = await fetch(`${apiUrl}/audits/${params.id}`, {
@@ -142,7 +143,7 @@ export default function AuditDetail() {
             <Loader2 className="h-12 w-12 text-primary animate-spin mb-4" />
             <h3 className="text-xl font-bold text-white mb-2">Audit Analysis in Progress...</h3>
             <p className="text-gray-400 font-light text-sm max-w-sm">
-              We are querying search engine simulation models and computing citation velocity metrics. This usually takes under a minute.
+              We are checking your homepage, schema markup, robots.txt and sitemap. This usually takes under a minute.
             </p>
           </CardContent>
         </Card>
@@ -215,7 +216,7 @@ export default function AuditDetail() {
             <motion.div whileHover={{ y: -5 }}>
               <Card className="bg-card/40 backdrop-blur-xl border-border/20 hover:border-emerald-400/50 transition-all duration-300 shadow-lg h-full">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Citation Velocity</CardTitle>
+                  <CardTitle className="text-xs font-semibold text-gray-400 uppercase tracking-wider">AI Crawler Access</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-4xl font-bold text-white flex items-baseline">

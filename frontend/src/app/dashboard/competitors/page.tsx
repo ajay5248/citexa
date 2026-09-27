@@ -7,6 +7,7 @@ import { Plus, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion } from "framer-motion";
+import { getApiUrl } from "@/lib/site";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -36,7 +37,7 @@ interface Competitor {
   created_at: string;
 }
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || (typeof window !== "undefined" && (window.location.hostname.includes("localhost") || window.location.hostname.includes("127.0.0.1")) ? "/api" : "https://citexa.onrender.com");
+const apiUrl = getApiUrl();
 
 export default function Competitors() {
   const [websites, setWebsites] = useState<Website[]>([]);

@@ -1,21 +1,18 @@
-import time
-from collections import defaultdict, deque
 from typing import Literal, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel, EmailStr, Field, model_validator
 from sqlalchemy.orm import Session
 import models, database
+from ratelimit import RateLimiter
 
 router = APIRouter(
     prefix="/contact",
     tags=["contact"],
 )
 
-# Simple in-memory rate limit: max submissions per IP within the window
-RATE_LIMIT = 5
-RATE_WINDOW_SECONDS = 600
-_recent_submissions = defaultdict(deque)
+# Max 5 submissions per IP every 10 minutes
+contact_limiter = RateLimiter(limit=5, window_seconds=600)
 
 
 class ContactCreate(BaseModel):
@@ -25,7 +22,7 @@ class ContactCreate(BaseModel):
     company: Optional[str] = Field(default=None, max_length=150)
     website: Optional[str] = Field(default=None, max_length=300)
     message: Optional[str] = Field(default=None, max_length=2000)
-    source: Literal["contact", "free-audit"] = "contact"
+    source: Literal["contact", "free-audit", "order"] = "contact"
     # Honeypot: hidden in the form, so only bots fill it in
     nickname: Optional[str] = None
 
@@ -40,17 +37,6 @@ class ContactCreate(BaseModel):
         return self
 
 
-def _is_rate_limited(ip: str) -> bool:
-    now = time.time()
-    timestamps = _recent_submissions[ip]
-    while timestamps and now - timestamps[0] > RATE_WINDOW_SECONDS:
-        timestamps.popleft()
-    if len(timestamps) >= RATE_LIMIT:
-        return True
-    timestamps.append(now)
-    return False
-
-
 # Accept both /contact and /contact/ so proxies that strip trailing slashes still work
 @router.post("", status_code=status.HTTP_201_CREATED)
 @router.post("/", status_code=status.HTTP_201_CREATED, include_in_schema=False)
@@ -59,8 +45,7 @@ def create_contact_message(payload: ContactCreate, request: Request, db: Session
     if payload.nickname:
         return {"status": "received"}
 
-    ip = request.headers.get("x-forwarded-for", request.client.host if request.client else "unknown").split(",")[0].strip()
-    if _is_rate_limited(ip):
+    if contact_limiter.is_limited(request):
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             detail="Too many submissions. Please try again in a few minutes.",
